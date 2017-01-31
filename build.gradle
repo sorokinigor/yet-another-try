@@ -31,6 +31,13 @@ test {
   useTestNG()
 }
 
+jacocoTestReport {
+  reports {
+    xml.enabled true
+    html.enabled false
+  }
+}
+
 jar {
   manifest {
     attributes 'Implementation-Title': project.name,
