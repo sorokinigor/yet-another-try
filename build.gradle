@@ -1,0 +1,104 @@
+plugins {
+  id 'java'
+  id 'jacoco'
+  id 'maven'
+  id 'signing'
+}
+group 'com.github.sorokinigor'
+
+repositories {
+  jcenter()
+}
+
+ext.versions = [
+    java: '1.8',
+    testng: '6.10',
+    slf4j    : '1.7.22',
+    logback  : '1.1.7'
+]
+
+sourceCompatibility = versions.java
+targetCompatibility = versions.java
+
+dependencies {
+  compile "org.slf4j:slf4j-api:${versions.slf4j}"
+
+  testCompile "org.testng:testng${versions.testng}"
+  testRuntime "ch.qos.logback:logback-classic:${versions.logback}"
+}
+
+test {
+  useTestNG()
+}
+
+jar {
+  manifest {
+    attributes 'Implementation-Title': project.name,
+               'Implementation-Version': version
+  }
+}
+
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc
+}
+
+artifacts {
+  archives javadocJar, sourcesJar
+}
+
+signing {
+  required { !version.endsWith('SNAPSHOT') && gradle.taskGraph.hasTask('uploadArchives') }
+  sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'Yet Another Try'
+        packaging 'jar'
+        description 'The library provides an asynchronous executor with an extensible retry policy.'
+        url 'https://github.com/sorokinigor/yet-another-try'
+
+        scm {
+          connection 'scm:git:git://github.com/sorokinigor/yet-another-try.git'
+          developerConnection 'scm:git:ssh://github.com:sorokinigor/yet-another-try.git'
+          url 'https://github.com/sorokinigor/yet-another-try/tree/master'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+          }
+        }
+
+        developers {
+          developer {
+            id 'sorokinigor'
+            name 'Igor Sorokin'
+            email 'igorsorokin808@gmail.com'
+            organizationUrl 'https://github.com/sorokinigor/'
+          }
+        }
+      }
+    }
+  }
+}
