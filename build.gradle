@@ -14,7 +14,7 @@ ext.versions = [
     java: '1.8',
     testng: '6.10',
     assertj: '3.6.2',
-    mockito: '2.0.2-beta',
+    mockito: '2.7.5',
     slf4j    : '1.7.22',
     logback  : '1.1.7',
 ]
@@ -28,7 +28,7 @@ dependencies {
   /* Test dependencies */
   testCompile "org.testng:testng:${versions.testng}"
   testCompile "org.assertj:assertj-core:${versions.assertj}"
-  testCompile "org.mockito:mockito-all:${versions.mockito}"
+  testCompile "org.mockito:mockito-core:${versions.mockito}"
   testRuntime "ch.qos.logback:logback-classic:${versions.logback}"
 }
 
