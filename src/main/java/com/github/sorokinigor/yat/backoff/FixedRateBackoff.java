@@ -1,0 +1,30 @@
+package com.github.sorokinigor.yat.backoff;
+
+/**
+ * @author Igor Sorokin
+ */
+final class FixedRateBackoff implements Backoff {
+
+  private final long durationNanos;
+
+  FixedRateBackoff(long durationNanos) {
+    if (durationNanos < 0) {
+      throw new IllegalArgumentException("'durationNanos' must be >= 0.");
+    }
+    this.durationNanos = durationNanos;
+  }
+
+  @Override
+  public long calculateDelayNanos(int attempt, long executionDurationNanos) {
+    if (executionDurationNanos >= durationNanos) {
+      return 0;
+    } else {
+      return durationNanos - executionDurationNanos;
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "FixedRateBackoff{durationNanos=" + durationNanos + '}';
+  }
+}
