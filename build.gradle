@@ -13,8 +13,10 @@ repositories {
 ext.versions = [
     java: '1.8',
     testng: '6.10',
+    assertj: '3.6.2',
+    mockito: '2.0.2-beta',
     slf4j    : '1.7.22',
-    logback  : '1.1.7'
+    logback  : '1.1.7',
 ]
 
 sourceCompatibility = versions.java
@@ -23,7 +25,10 @@ targetCompatibility = versions.java
 dependencies {
   compile "org.slf4j:slf4j-api:${versions.slf4j}"
 
-  testCompile "org.testng:testng${versions.testng}"
+  /* Test dependencies */
+  testCompile "org.testng:testng:${versions.testng}"
+  testCompile "org.assertj:assertj-core:${versions.assertj}"
+  testCompile "org.mockito:mockito-all:${versions.mockito}"
   testRuntime "ch.qos.logback:logback-classic:${versions.logback}"
 }
 
