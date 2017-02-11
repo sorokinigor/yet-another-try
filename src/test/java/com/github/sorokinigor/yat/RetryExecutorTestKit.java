@@ -1,13 +1,10 @@
 package com.github.sorokinigor.yat;
 
-import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -37,7 +34,7 @@ abstract class RetryExecutorTestKit {
     try (RetryExecutor executor = create()) {
       CompletableFuture<Integer> task = executor.submit(failedCallable());
       task.join();
-      Assertions.fail("The task is expected to be failed.");
+      fail("The task is expected to be failed.");
     } catch (CompletionException e) {
       throw e.getCause();
     }
@@ -57,7 +54,7 @@ abstract class RetryExecutorTestKit {
     try (RetryExecutor executor = create()) {
       CompletableFuture<Void> task = executor.submit(failedRunnable());
       task.join();
-      Assertions.fail("The task is expected to be failed.");
+      fail("The task is expected to be failed.");
     } catch (CompletionException e) {
       throw e.getCause();
     }
@@ -105,7 +102,24 @@ abstract class RetryExecutorTestKit {
     }
   }
 
-  @Test(timeOut = 10_000L)
+  @Test(timeOut = TEST_TIMEOUT_MILLIS)
+  public void when_invoke_all_is_completed_all_of_the_futures_should_be_successful() throws Exception {
+    String firstValue = "first";
+    String secondValue = "second";
+    Collection<Callable<String>> tasks = Arrays.asList(
+        successfulCallable(firstValue),
+        successfulCallable(secondValue)
+    );
+    try (RetryExecutor executor = create()) {
+      List<Future<String>> futures = executor.invokeAll(tasks, 3L, TimeUnit.SECONDS);
+      assertThat(futures)
+          .allMatch(Future::isDone);
+      assertCompletedWith(futures.get(0), firstValue);
+      assertCompletedWith(futures.get(1), secondValue);
+    }
+  }
+
+  @Test(timeOut = TEST_TIMEOUT_MILLIS)
   public void when_invoke_all_with_timeout_is_completed_all_of_the_futures_should_be_done() throws Exception {
     String expectedValue = "value";
     Collection<Callable<String>> tasks = Arrays.asList(
@@ -156,13 +170,35 @@ abstract class RetryExecutorTestKit {
     try (RetryExecutor executor = create()) {
       String expected = "value";
 
-      String actual = executor.invokeAny(Arrays.asList(successfulCallable(expected), failedCallable()));
+      String actual = executor.invokeAny(Arrays.asList(
+          successfulCallable(expected),
+          failedCallable())
+      );
       assertThat(actual)
           .isEqualTo(expected);
     }
   }
 
-  @Test(expectedExceptions = TimeoutException.class)
+  @Test(timeOut = TEST_TIMEOUT_MILLIS)
+  public void when_all_of_the_task_are_completed_successfully_it_should_return_the_result_of_the_first_successful_one()
+      throws Exception {
+    try (RetryExecutor executor = create()) {
+      String expected = "value";
+
+      String actual = executor.invokeAny(
+          Arrays.asList(
+              successfulCallable(expected),
+              successfulCallable("notExpected")
+          ),
+          3L,
+          TimeUnit.SECONDS
+      );
+      assertThat(actual)
+          .isEqualTo(expected);
+    }
+  }
+
+  @Test(expectedExceptions = TimeoutException.class, timeOut = TEST_TIMEOUT_MILLIS)
   public void when_none_of_tasks_are_completed_within_timeout_it_should_fail() throws Exception {
     try (RetryExecutor executor = create()) {
       executor.invokeAny(Collections.singletonList(infiniteLoopCallable()), 1, TimeUnit.MILLISECONDS);
@@ -237,4 +273,23 @@ abstract class RetryExecutorTestKit {
     );
   }
 
+  private static final class NamingThreadFactory implements ThreadFactory {
+
+    private final ThreadFactory delegate;
+    private final AtomicLong count = new AtomicLong();
+    private final String prefix;
+
+    private NamingThreadFactory(ThreadFactory delegate, String prefix) {
+      this.delegate = Objects.requireNonNull(delegate, "'delegate' should not be 'null'.");
+      this.prefix = Objects.requireNonNull(prefix, "'prefix' should not be 'null'.");
+    }
+
+    @Override
+    public Thread newThread(Runnable runnable) {
+      Thread thread = delegate.newThread(runnable);
+      thread.setName(prefix + count.getAndIncrement());
+      return thread;
+    }
+
+  }
 }

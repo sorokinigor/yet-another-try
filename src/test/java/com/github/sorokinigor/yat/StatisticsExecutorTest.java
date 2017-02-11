@@ -24,11 +24,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StatisticsExecutorTest extends RetryExecutorTestKit {
 
   @Test(dataProvider = "tasksData")
-  public void tasksDataDrivenTest(List<Callable<Object>> callables, StatisticsExecutor.Stats expected)
+  public void tasksDataDrivenTest(List<Callable<Object>> tasks, StatisticsExecutor.Stats expected)
       throws InterruptedException {
     StatisticsExecutor executor = create();
     try (StatisticsExecutor ignored = executor) {
-      executor.invokeAll(callables);
+      executor.invokeAll(tasks);
     }
     StatisticsExecutor.Stats actual = executor.stats();
     assertThat(actual)

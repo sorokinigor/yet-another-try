@@ -26,11 +26,11 @@ final class Policy {
     this.exceptionFilter = Objects.requireNonNull(exceptionFilter, "'exceptionFilter' should not be 'null'.");
     this.backOff = Objects.requireNonNull(backOff, "'backOff' should not be 'null'.");
     if (maxAttempts < 1) {
-      throw new IllegalArgumentException("'firstDelayNanos' should be greater than '0'.");
+      throw new IllegalArgumentException("'firstDelayNanos' should be > '0'.");
     }
     this.firstDelayNanos = firstDelayNanos;
     if (firstDelayNanos < 0) {
-      throw new IllegalArgumentException("'firstDelayNanos' should be greater or equal that '0'.");
+      throw new IllegalArgumentException("'firstDelayNanos' should be >= '0'.");
     }
     this.maxAttempts = maxAttempts;
     this.firstAttemptInInvocationThread = firstAttemptInInvocationThread;

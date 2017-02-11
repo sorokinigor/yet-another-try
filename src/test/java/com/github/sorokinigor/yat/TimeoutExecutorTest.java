@@ -14,7 +14,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
 
   private static final long TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(TEST_TIMEOUT_MILLIS / 8L);
 
-  @Test(timeOut = TEST_TIMEOUT_MILLIS, expectedExceptions = TimeoutException.class)
+  @Test(expectedExceptions = TimeoutException.class, timeOut = TEST_TIMEOUT_MILLIS)
   public void when_task_is_not_completed_within_timeout_it_should_complete_future_with_exception() throws Throwable {
     try (RetryExecutor executor = create()) {
       CompletableFuture<String> task = executor.submit(infiniteLoopCallable());
@@ -27,9 +27,9 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
   @Test
   public void when_task_is_completed_within_timeout_it_should_return_result() {
     try (RetryExecutor executor = create()) {
-      Integer expected = 1;
-      CompletableFuture<Integer> task = executor.submit(() -> {
-        Thread.sleep(100);
+      String expected = "expected";
+      CompletableFuture<String> task = executor.submit(() -> {
+        Thread.sleep(100L);
         return expected;
       });
       assertThat(task.join())
@@ -61,7 +61,6 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
 
     List<Runnable> neverExecutedTasks = executor.shutdownNow();
     assertThat(neverExecutedTasks)
-        //The scheduled timeout task
         .size()
         .isBetween(1, 2);
     assertShutdown(executor, executorService, timeoutExecutor);

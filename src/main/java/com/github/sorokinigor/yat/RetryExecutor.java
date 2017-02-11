@@ -2,6 +2,7 @@ package com.github.sorokinigor.yat;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -14,6 +15,7 @@ public interface RetryExecutor extends ExecutorService, AutoCloseable {
 
   @Override
   default <T> CompletableFuture<T> submit(Runnable task, T result) {
+    Objects.requireNonNull(task, "'task' should not be 'null'.");
     return submit(() -> { task.run(); return result; });
   }
 

@@ -36,21 +36,20 @@ abstract class AbstractRetryExecutor implements RetryExecutor {
     for (Callable<T> task : tasks) {
       futures[index++] = submit(task);
     }
-    boolean isDone = false;
+    boolean completeWithTimeout = timeoutNanos.isPresent();
     try {
       if (timeoutNanos.isPresent()) {
         CompletableFuture.allOf(futures)
             .get(timeoutNanos.getAsLong(), TimeUnit.NANOSECONDS);
-        isDone = true;
+        completeWithTimeout = false;
       } else {
         CompletableFuture.allOf(futures)
             .get();
-        isDone = true;
       }
     } catch (ExecutionException | TimeoutException ignored) {
       logger.error("Got exception while waiting for completion of '{}' tasks.", tasks.size(), ignored);
     }
-    if (!isDone && timeoutNanos.isPresent()) {
+    if (completeWithTimeout) {
       TimeoutException timeoutException = new TimeoutException(
           "Got timeout after '" + timeoutNanos.getAsLong() + "' nanos."
       );

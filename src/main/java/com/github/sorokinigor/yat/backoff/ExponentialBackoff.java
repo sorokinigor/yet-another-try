@@ -14,7 +14,7 @@ final class ExponentialBackoff implements Backoff {
 
   ExponentialBackoff(long minNanos, long maxNanos, double randomFactor) {
     if (minNanos < 0) {
-      throw new IllegalArgumentException("'minNanos' must be >= 0.");
+      throw new IllegalArgumentException("'minNanos' must be >= '0'.");
     }
     if (maxNanos < minNanos) {
       throw new IllegalArgumentException("'maxNanos' must be >= 'minNanos'.");

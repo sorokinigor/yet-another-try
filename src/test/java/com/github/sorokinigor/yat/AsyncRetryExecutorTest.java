@@ -120,6 +120,67 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void it_should_stop_after_termination_exception()
+      throws Exception {
+    Class<? extends Exception> terminateExceptionClass = IllegalStateException.class;
+    int expectedAttempts = 2;
+    try (RetryExecutor executor = createBuilder(createExecutorService())
+        .terminateOn(terminateExceptionClass)
+        .maxAttempts(expectedAttempts + 1)
+        .build()) {
+      Callable<String> task = Mockito.mock(Callable.class);
+      when(task.call())
+          .thenThrow(RuntimeException.class, terminateExceptionClass);
+
+      CompletableFuture<String> future = executor.submit(task);
+      assertFailedWith(future, terminateExceptionClass);
+      verify(task, times(expectedAttempts))
+          .call();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void it_should_retry_only_retryable_exceptions()
+      throws Exception {
+    Class<? extends Exception> retryableExceptionClass = IllegalStateException.class;
+    int expectedAttempts = 2;
+    try (RetryExecutor executor = createBuilder(createExecutorService())
+        .retryOn(retryableExceptionClass)
+        .maxAttempts(expectedAttempts + 1)
+        .build()) {
+      Callable<String> task = Mockito.mock(Callable.class);
+      Class<? extends Exception> nonRetryableException = RuntimeException.class;
+      when(task.call())
+          .thenThrow(retryableExceptionClass, nonRetryableException);
+
+      CompletableFuture<String> future = executor.submit(task);
+      assertFailedWith(future, nonRetryableException);
+      verify(task, times(expectedAttempts))
+          .call();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void it_should_schedule_next_attempt_if_the_thread_was_interrupted() throws Exception {
+    try (RetryExecutor executor = create()) {
+      Callable<String> task = Mockito.mock(Callable.class);
+      when(task.call())
+          .thenAnswer(answer -> {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException();
+          });
+
+      CompletableFuture<String> future = executor.submit(task);
+      assertFailedWith(future, RuntimeException.class);
+      verify(task, after(1_000).times(1))
+          .call();
+    }
+  }
+
   @Override
   protected RetryExecutor create() {
     return createBuilder(createExecutorService())
