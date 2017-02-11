@@ -10,9 +10,7 @@ public final class Backoffs {
   private static final Backoff DEFAULT = exponential(3L, 30L, TimeUnit.SECONDS, 0.2D);
   private static final Backoff NO_BACKOFF = new FixedDelayBackoff(0L);
 
-  private Backoffs() {
-    throw new IllegalStateException("Not expected to be initialized");
-  }
+  private Backoffs() { throw new IllegalStateException("Not expected to be initialized"); }
 
   public static Backoff defaultBackoff() {
     return DEFAULT;
