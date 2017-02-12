@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -62,9 +64,9 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
         }
         lastException = e;
 
-        if (timeoutNanos > 0) {
+        if (timeoutNanos > 0L) {
           timeoutDelta = deadline - finish;
-          if (timeoutDelta <= 0) {
+          if (timeoutDelta <= 0L) {
             TimeoutException timeoutException = new TimeoutException("Got timeout after '" + timeoutNanos + "' nanos.");
             timeoutException.addSuppressed(lastException);
             lastException = timeoutException;
@@ -79,10 +81,16 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
       }
     }
     logger.debug("'{}/{}' attempts have been failed.", attempt, policy.maxAttempts);
-    if (lastException instanceof RuntimeException) {
-      throw (RuntimeException) lastException;
-    } else {
-      throw new RuntimeException(lastException);
+    throw new CompletionException(lastException);
+  }
+
+  @Override
+  public <T> Optional<T> tryExecute(Callable<? extends T> supplier) {
+    try {
+      return Optional.ofNullable(execute(supplier));
+    } catch (Exception e) {
+      logger.error("Unable to execute task '{}'.", supplier, e);
+      return Optional.empty();
     }
   }
 

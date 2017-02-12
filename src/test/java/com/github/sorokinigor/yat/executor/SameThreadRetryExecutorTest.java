@@ -7,10 +7,7 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 import static com.github.sorokinigor.yat.backoff.Backoffs.fixedDelay;
@@ -144,12 +141,17 @@ public class SameThreadRetryExecutorTest {
         .backOff(fixedDelay(delaySeconds, delayTimeunit))
         .build();
     Callable<String> task = Mockito.mock(Callable.class);
+    Class<RuntimeException> thrownException = RuntimeException.class;
     when(task.call())
-        .thenThrow(RuntimeException.class);
+        .thenThrow(thrownException);
     CompletableFuture<Boolean> interruptedFlag = new CompletableFuture<>();
     Thread executionThread = new Thread(() -> {
-      assertFailedWith(executor, task, RuntimeException.class);
-      interruptedFlag.complete(Thread.currentThread().isInterrupted());
+      try {
+        executor.execute(task);
+        fail("Should be failed.");
+      } catch (CompletionException e) {
+        interruptedFlag.complete(Thread.currentThread().isInterrupted());
+      }
     });
     executionThread.setName("same-thread-executor-test-thread");
     executionThread.start();
@@ -175,9 +177,8 @@ public class SameThreadRetryExecutorTest {
         .timeout(timeout, timeoutTimeunit)
         .maxAttempts(maxAttempts)
         .backOff(fixedDelay(timeout / (maxAttempts / 2), timeoutTimeunit));
-    RuntimeException exception = assertFailedWith(executor, () -> { throw new Exception(); }, RuntimeException.class);
-    assertThat(exception)
-        .hasCauseExactlyInstanceOf(TimeoutException.class);
+
+    assertFailedWith(executor, () -> { throw new Exception(); }, TimeoutException.class);
   }
 
   @Test(expectedExceptions = NullPointerException.class)
@@ -236,8 +237,9 @@ public class SameThreadRetryExecutorTest {
       throw new Error("Not expected to be thrown.");
     } catch (Exception e) {
       assertThat(e)
-          .isExactlyInstanceOf(exceptionClazz);
-      return (E) e;
+          .isExactlyInstanceOf(CompletionException.class)
+          .hasCauseExactlyInstanceOf(exceptionClazz);
+      return (E) e.getCause();
     }
   }
 
