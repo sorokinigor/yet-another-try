@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.sorokinigor.yat.backoff.Backoffs.fixedDelay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -16,7 +17,7 @@ public class FixedDelayBackoffTest {
 
   @Test(dataProvider = "data")
   public void it_should_always_return_the_same_value(long amount, TimeUnit unit, int numberOfAttempts) {
-    Backoff backoff = Backoffs.fixedDelay(amount, unit);
+    Backoff backoff = fixedDelay(amount, unit);
 
     long expected = unit.toNanos(amount);
     long executionNanos = 10_000L;
@@ -38,7 +39,7 @@ public class FixedDelayBackoffTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void delay_should_not_be_less_than_zero() {
-    Backoffs.fixedDelay(-1L, TimeUnit.SECONDS);
+    fixedDelay(-1L, TimeUnit.SECONDS);
   }
 
 }

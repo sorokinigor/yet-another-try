@@ -1,6 +1,7 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.backoff.Backoffs;
+import com.github.sorokinigor.yat.Retry;
+import com.github.sorokinigor.yat.RetryExecutor;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.github.sorokinigor.yat.backoff.Backoffs.fixedDelay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -114,7 +116,7 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
     RetryExecutor retryExecutor = Retry
         .async(executorService)
         .maxAttempts(MAX_ATTEMPTS)
-        .backOff(Backoffs.fixedDelay(10, TimeUnit.MILLISECONDS))
+        .backOff(fixedDelay(10, TimeUnit.MILLISECONDS))
         .build();
     return Retry.gatherStatisticFor(retryExecutor);
   }

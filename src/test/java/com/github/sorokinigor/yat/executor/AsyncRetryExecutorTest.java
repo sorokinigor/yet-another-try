@@ -1,6 +1,7 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.backoff.Backoffs;
+import com.github.sorokinigor.yat.Retry;
+import com.github.sorokinigor.yat.RetryExecutor;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static com.github.sorokinigor.yat.backoff.Backoffs.fixedDelay;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +53,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
     long timeoutMillis = 3_000L;
     try (RetryExecutor executor = createBuilder(createExecutorService())
         .runFirstAttemptInInvocationThread()
-        .backOff(Backoffs.fixedDelay(timeoutMillis / 3L, TimeUnit.MILLISECONDS))
+        .backOff(fixedDelay(timeoutMillis / 3L, TimeUnit.MILLISECONDS))
         .build()) {
       String expected = "expected";
       Callable<String> task = Mockito.mock(Callable.class);
@@ -187,7 +189,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
         .build();
   }
 
-  private RetryExecutorBuilder createBuilder(ScheduledExecutorService executorService) {
+  private AsyncRetryExecutorBuilder createBuilder(ScheduledExecutorService executorService) {
     return Retry
         .async(executorService)
         .maxAttempts(MAX_ATTEMPTS)

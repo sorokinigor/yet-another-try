@@ -1,5 +1,6 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.RetryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

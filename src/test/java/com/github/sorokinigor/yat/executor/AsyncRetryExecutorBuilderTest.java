@@ -1,5 +1,7 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.Retry;
+import com.github.sorokinigor.yat.RetryExecutor;
 import com.github.sorokinigor.yat.backoff.Backoff;
 import com.github.sorokinigor.yat.backoff.Backoffs;
 import org.assertj.core.api.Assertions;
@@ -17,13 +19,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.sorokinigor.yat.RetryExecutorBuilderTest.BuilderAssertion.assertThat;
+import static com.github.sorokinigor.yat.executor.AsyncRetryExecutorBuilderTest.BuilderAssertion.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Igor Sorokin
  */
-public class RetryExecutorBuilderTest {
+public class AsyncRetryExecutorBuilderTest {
 
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
@@ -40,7 +42,7 @@ public class RetryExecutorBuilderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void when_executor_is_not_set_it_should_fail() {
-    assertThat(new RetryExecutorBuilder())
+    assertThat(new AsyncRetryExecutorBuilder())
         .assertBuilt();
   }
 
@@ -54,15 +56,15 @@ public class RetryExecutorBuilderTest {
               builder.maxAttempts(maxAttempts);
               return maxAttempts;
             },
-            RetryExecutorBuilder::maxAttempts
+            AsyncRetryExecutorBuilder::maxAttempts
         )
         .assertIsSet(
             builder -> { builder.retryOnce(); return 2; },
-            RetryExecutorBuilder::maxAttempts
+            AsyncRetryExecutorBuilder::maxAttempts
         )
         .assertIsSet(
             builder -> { builder.doNotRetry(); return 1; },
-            RetryExecutorBuilder::maxAttempts
+            AsyncRetryExecutorBuilder::maxAttempts
         )
         .assertBuilt();
   }
@@ -78,7 +80,7 @@ public class RetryExecutorBuilderTest {
               builder.firstDelayNanos(firstDelayNanos);
               return firstDelayNanos;
             },
-            RetryExecutorBuilder::firstDelayNanos
+            AsyncRetryExecutorBuilder::firstDelayNanos
         )
         .verify(builder -> {
           long actual = builder.firstDelay(TimeUnit.SECONDS);
@@ -90,11 +92,11 @@ public class RetryExecutorBuilderTest {
               builder.firstDelay(firstDelaySeconds, firstDelayTimeUnit);
               return firstDelayTimeUnit.toNanos(firstDelaySeconds);
             },
-            RetryExecutorBuilder::firstDelayNanos
+            AsyncRetryExecutorBuilder::firstDelayNanos
         )
         .assertIsSet(
             builder -> { builder.noFirstDelay(); return 0L; },
-            RetryExecutorBuilder::firstDelayNanos
+            AsyncRetryExecutorBuilder::firstDelayNanos
         )
         .assertBuilt();
   }
@@ -109,11 +111,11 @@ public class RetryExecutorBuilderTest {
               builder.firstAttemptInInvocationThread(firstAttemptInInvocationThread);
               return firstAttemptInInvocationThread;
             },
-            RetryExecutorBuilder::firstAttemptInInvocationThread
+            AsyncRetryExecutorBuilder::firstAttemptInInvocationThread
         )
         .assertIsSet(
             builder -> { builder.runFirstAttemptInInvocationThread(); return true; },
-            RetryExecutorBuilder::firstAttemptInInvocationThread
+            AsyncRetryExecutorBuilder::firstAttemptInInvocationThread
         )
         .assertBuilt();
   }
@@ -129,7 +131,7 @@ public class RetryExecutorBuilderTest {
               builder.timeoutNanos(timeoutNanos);
               return timeoutNanos;
             },
-            RetryExecutorBuilder::timeoutNanos
+            AsyncRetryExecutorBuilder::timeoutNanos
         )
         .verify(builder -> {
           long actual = builder.timeout(timeoutTimeUnit);
@@ -142,12 +144,12 @@ public class RetryExecutorBuilderTest {
               builder.timeout(timeoutSeconds, timeoutTimeUnit);
               return timeoutTimeUnit.toNanos(timeoutSeconds);
             },
-            RetryExecutorBuilder::timeoutNanos
+            AsyncRetryExecutorBuilder::timeoutNanos
         )
         .assertBuilt(TimeoutExecutor.class)
         .assertIsSet(
-            builder -> { builder.noTimeout(); return RetryExecutorBuilder.NO_TIMEOUT; },
-            RetryExecutorBuilder::timeoutNanos
+            builder -> { builder.noTimeout(); return AsyncRetryExecutorBuilder.NO_TIMEOUT; },
+            AsyncRetryExecutorBuilder::timeoutNanos
         )
         .assertBuilt();
   }
@@ -160,7 +162,7 @@ public class RetryExecutorBuilderTest {
               builder.timeoutExecutorService(executorService);
               return executorService;
             },
-            RetryExecutorBuilder::timeoutExecutorService
+            AsyncRetryExecutorBuilder::timeoutExecutorService
         )
         .assertBuilt();
   }
@@ -174,11 +176,11 @@ public class RetryExecutorBuilderTest {
               builder.backOff(backoff);
               return backoff;
             },
-            RetryExecutorBuilder::backOff
+            AsyncRetryExecutorBuilder::backOff
         )
         .assertIsSet(
             builder -> { builder.withoutDelay(); return Backoffs.noBackoff(); },
-            RetryExecutorBuilder::backOff
+            AsyncRetryExecutorBuilder::backOff
         )
         .assertBuilt();
   }
@@ -259,7 +261,7 @@ public class RetryExecutorBuilderTest {
         .assertBuilt();
   }
 
-  private RetryExecutorBuilder createBuilder() {
+  private AsyncRetryExecutorBuilder createBuilder() {
     return Retry.async(executorService);
   }
 
@@ -270,19 +272,19 @@ public class RetryExecutorBuilderTest {
 
   static final class BuilderAssertion {
 
-    private final RetryExecutorBuilder builder;
+    private final AsyncRetryExecutorBuilder builder;
 
-    private BuilderAssertion(RetryExecutorBuilder builder) {
+    private BuilderAssertion(AsyncRetryExecutorBuilder builder) {
       this.builder = builder;
     }
 
-    static BuilderAssertion assertThat(RetryExecutorBuilder builder) {
+    static BuilderAssertion assertThat(AsyncRetryExecutorBuilder builder) {
       return new BuilderAssertion(builder);
     }
 
     private <T> BuilderAssertion assertIsSet(
-        Function<RetryExecutorBuilder, T> setterToExpectedF,
-        Function<RetryExecutorBuilder, T> getter
+        Function<AsyncRetryExecutorBuilder, T> setterToExpectedF,
+        Function<AsyncRetryExecutorBuilder, T> getter
     ) {
       return setAndVerify(
           setterToExpectedF,
@@ -294,8 +296,8 @@ public class RetryExecutorBuilderTest {
     }
 
     private <T> BuilderAssertion setAndVerify(
-        Function<RetryExecutorBuilder, T> setterToExpectedF,
-        BiConsumer<RetryExecutorBuilder, T> verifier
+        Function<AsyncRetryExecutorBuilder, T> setterToExpectedF,
+        BiConsumer<AsyncRetryExecutorBuilder, T> verifier
     ) {
       T expected = setterToExpectedF.apply(builder);
       verifier.accept(builder, expected);
@@ -313,7 +315,7 @@ public class RetryExecutorBuilderTest {
       return this;
     }
 
-    private BuilderAssertion verify(Consumer<RetryExecutorBuilder> verificationClosure) {
+    private BuilderAssertion verify(Consumer<AsyncRetryExecutorBuilder> verificationClosure) {
       verificationClosure.accept(builder);
       return this;
     }

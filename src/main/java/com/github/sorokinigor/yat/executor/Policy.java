@@ -1,4 +1,4 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
 
 import com.github.sorokinigor.yat.backoff.Backoff;
 

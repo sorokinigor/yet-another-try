@@ -1,4 +1,6 @@
-package com.github.sorokinigor.yat;
+package com.github.sorokinigor.yat.executor;
+
+import com.github.sorokinigor.yat.RetryExecutor;
 
 import java.util.List;
 import java.util.Objects;
