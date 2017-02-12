@@ -1,6 +1,6 @@
 package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.RetryExecutor;
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,11 +9,11 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * A trait, which implements most of the methods of {@link RetryExecutor}.
+ * A trait, which implements most of the methods of {@link AsyncRetryExecutor}.
  *
  * @author Igor Sorokin
  */
-abstract class AbstractRetryExecutor implements RetryExecutor {
+abstract class AbstractRetryExecutorService implements AsyncRetryExecutor {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -93,22 +93,22 @@ abstract class AbstractRetryExecutor implements RetryExecutor {
 
   @Override
   public final <T> CompletableFuture<T> submit(Runnable task, T result) {
-    return RetryExecutor.super.submit(task, result);
+    return AsyncRetryExecutor.super.submit(task, result);
   }
 
   @Override
   public final CompletableFuture<Void> submit(Runnable task) {
-    return RetryExecutor.super.submit(task);
+    return AsyncRetryExecutor.super.submit(task);
   }
 
   @Override
   public final void execute(Runnable command) {
-    RetryExecutor.super.execute(command);
+    AsyncRetryExecutor.super.execute(command);
   }
 
   @Override
   public final void close() {
-    RetryExecutor.super.close();
+    AsyncRetryExecutor.super.close();
   }
 
 }

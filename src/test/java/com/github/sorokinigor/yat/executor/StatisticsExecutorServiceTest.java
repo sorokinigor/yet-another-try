@@ -1,7 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import com.github.sorokinigor.yat.Retry;
-import com.github.sorokinigor.yat.RetryExecutor;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -23,16 +23,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Igor Sorokin
  */
-public class StatisticsExecutorTest extends RetryExecutorTestKit {
+public class StatisticsExecutorServiceTest extends AsyncRetryExecutorTestKit {
 
   @Test(dataProvider = "tasksData")
-  public void tasksDataDrivenTest(List<Callable<Object>> tasks, StatisticsExecutor.Stats expected)
+  public void tasksDataDrivenTest(List<Callable<Object>> tasks, StatisticsExecutorService.Stats expected)
       throws InterruptedException {
-    StatisticsExecutor executor = create();
-    try (StatisticsExecutor ignored = executor) {
+    StatisticsExecutorService executor = create();
+    try (StatisticsExecutorService ignored = executor) {
       executor.invokeAll(tasks);
     }
-    StatisticsExecutor.Stats actual = executor.stats();
+    StatisticsExecutorService.Stats actual = executor.stats();
     assertThat(actual)
         .isEqualTo(expected);
   }
@@ -61,7 +61,7 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
     tasks.addAll(successful);
     tasks.addAll(failed);
 
-    StatisticsExecutor.Stats stats = new StatisticsExecutor.Stats(
+    StatisticsExecutorService.Stats stats = new StatisticsExecutorService.Stats(
         successful.size(),
         failed.size(),
         failed.size() * MAX_ATTEMPTS
@@ -73,7 +73,7 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
   public void when_terminated_it_should_terminate_internal_executor()
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
-    RetryExecutor executor = create(executorService);
+    AsyncRetryExecutor executor = create(executorService);
     executor.submit(successfulRunnable());
 
     executor.shutdown();
@@ -86,7 +86,7 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
   public void when_shutdown_immediately_it_should_shutdown_internal_executor()
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
-    RetryExecutor executor = create(executorService);
+    AsyncRetryExecutor executor = create(executorService);
     executor.submit(infiniteLoopCallable());
 
     List<Runnable> neverExecutedTasks = executor.shutdownNow();
@@ -100,7 +100,7 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
   public void when_shutdown__it_should_shutdown_internal_executor()
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
-    RetryExecutor executor = create(executorService);
+    AsyncRetryExecutor executor = create(executorService);
     executor.submit(infiniteLoopCallable());
 
     executor.shutdown();
@@ -108,12 +108,12 @@ public class StatisticsExecutorTest extends RetryExecutorTestKit {
   }
 
   @Override
-  protected StatisticsExecutor create() {
+  protected StatisticsExecutorService create() {
     return create(createExecutorService());
   }
 
-  private StatisticsExecutor create(ScheduledExecutorService executorService) {
-    RetryExecutor retryExecutor = Retry
+  private StatisticsExecutorService create(ScheduledExecutorService executorService) {
+    AsyncRetryExecutor retryExecutor = Retry
         .async(executorService)
         .maxAttempts(MAX_ATTEMPTS)
         .backOff(fixedDelay(10, TimeUnit.MILLISECONDS))

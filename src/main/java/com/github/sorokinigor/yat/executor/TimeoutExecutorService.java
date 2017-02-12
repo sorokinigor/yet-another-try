@@ -1,6 +1,6 @@
 package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.RetryExecutor;
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.stream.Stream;
 /**
  * @author Igor Sorokin
  */
-final class TimeoutExecutor extends AbstractRetryExecutor {
+final class TimeoutExecutorService extends AbstractRetryExecutorService {
 
-  private final RetryExecutor delegate;
+  private final AsyncRetryExecutor delegate;
   private final ScheduledExecutorService timeoutScheduler;
   private final long timeoutNanos;
 
-  TimeoutExecutor(RetryExecutor delegate, ScheduledExecutorService timeoutScheduler, long timeoutNanos) {
+  TimeoutExecutorService(AsyncRetryExecutor delegate, ScheduledExecutorService timeoutScheduler, long timeoutNanos) {
     this.delegate = Objects.requireNonNull(delegate, "'delegate' should not be 'null'.");
     this.timeoutScheduler = Objects.requireNonNull(timeoutScheduler, "'timeoutScheduler' should not be 'null'.");
     if (timeoutNanos <= 0L) {

@@ -1,7 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import com.github.sorokinigor.yat.Retry;
-import com.github.sorokinigor.yat.RetryExecutor;
 import com.github.sorokinigor.yat.backoff.Backoff;
 import com.github.sorokinigor.yat.backoff.Backoffs;
 import org.assertj.core.api.Assertions;
@@ -138,7 +138,7 @@ public class AsyncRetryExecutorBuilderTest {
           assertThat(actual)
               .isEqualTo(timeoutSeconds);
         })
-        .assertBuilt(TimeoutExecutor.class)
+        .assertBuilt(TimeoutExecutorService.class)
         .assertIsSet(
             builder -> {
               builder.timeout(timeoutSeconds, timeoutTimeUnit);
@@ -146,7 +146,7 @@ public class AsyncRetryExecutorBuilderTest {
             },
             AsyncRetryExecutorBuilder::timeoutNanos
         )
-        .assertBuilt(TimeoutExecutor.class)
+        .assertBuilt(TimeoutExecutorService.class)
         .assertIsSet(
             builder -> { builder.noTimeout(); return AsyncRetryExecutorBuilder.NO_TIMEOUT; },
             AsyncRetryExecutorBuilder::timeoutNanos
@@ -281,7 +281,7 @@ public class AsyncRetryExecutorBuilderTest {
             AsyncRetryExecutorBuilder::shouldShutdownExecutors
         )
         .verify(builder -> {
-          RetryExecutor executor = builder.build();
+          AsyncRetryExecutor executor = builder.build();
           executor.shutdown();
           assertThat(executor.shutdownNow())
               .isEmpty();
@@ -345,11 +345,11 @@ public class AsyncRetryExecutorBuilderTest {
     }
 
     private BuilderAssertion assertBuilt() {
-      return assertBuilt(AsyncRetryExecutor.class);
+      return assertBuilt(RetryExecutorService.class);
     }
 
-    private BuilderAssertion assertBuilt(Class<? extends RetryExecutor> expectedImplementation) {
-      RetryExecutor executor = builder.build();
+    private BuilderAssertion assertBuilt(Class<? extends AsyncRetryExecutor> expectedImplementation) {
+      AsyncRetryExecutor executor = builder.build();
       Assertions.assertThat(executor)
           .isExactlyInstanceOf(expectedImplementation);
       return this;

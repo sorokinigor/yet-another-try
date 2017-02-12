@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 /**
  * @author Igor Sorokin
  */
-public interface RetryExecutor extends ExecutorService, AutoCloseable {
+public interface AsyncRetryExecutor extends ExecutorService, AutoCloseable {
 
   @Override
   <T> CompletableFuture<T> submit(Callable<T> task);

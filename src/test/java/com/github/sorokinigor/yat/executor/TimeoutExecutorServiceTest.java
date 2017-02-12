@@ -1,7 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import com.github.sorokinigor.yat.Retry;
-import com.github.sorokinigor.yat.RetryExecutor;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -12,13 +12,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Igor Sorokin
  */
-public class TimeoutExecutorTest extends RetryExecutorTestKit {
+public class TimeoutExecutorServiceTest extends AsyncRetryExecutorTestKit {
 
   private static final long TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(TEST_TIMEOUT_MILLIS / 8L);
 
   @Test(expectedExceptions = TimeoutException.class, timeOut = TEST_TIMEOUT_MILLIS)
   public void when_task_is_not_completed_within_timeout_it_should_complete_future_with_exception() throws Throwable {
-    try (RetryExecutor executor = create()) {
+    try (AsyncRetryExecutor executor = create()) {
       CompletableFuture<String> task = executor.submit(infiniteLoopCallable());
       task.join();
     } catch (CompletionException e) {
@@ -28,7 +28,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
 
   @Test
   public void when_task_is_completed_within_timeout_it_should_return_result() {
-    try (RetryExecutor executor = create()) {
+    try (AsyncRetryExecutor executor = create()) {
       String expected = "expected";
       CompletableFuture<String> task = executor.submit(() -> {
         Thread.sleep(100L);
@@ -44,7 +44,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
     ScheduledExecutorService timeoutExecutor = createExecutorService();
-    RetryExecutor executor = create(executorService, timeoutExecutor);
+    AsyncRetryExecutor executor = create(executorService, timeoutExecutor);
     executor.submit(successfulRunnable());
 
     executor.shutdown();
@@ -58,7 +58,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
     ScheduledExecutorService timeoutExecutor = createExecutorService();
-    RetryExecutor executor = create(executorService, timeoutExecutor);
+    AsyncRetryExecutor executor = create(executorService, timeoutExecutor);
     executor.submit(infiniteLoopCallable());
 
     List<Runnable> neverExecutedTasks = executor.shutdownNow();
@@ -73,7 +73,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
       throws InterruptedException {
     ScheduledExecutorService executorService = createExecutorService();
     ScheduledExecutorService timeoutExecutor = createExecutorService();
-    RetryExecutor executor = create(executorService, timeoutExecutor);
+    AsyncRetryExecutor executor = create(executorService, timeoutExecutor);
     executor.submit(infiniteLoopCallable());
 
     executor.shutdown();
@@ -83,12 +83,12 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void when_timeout_nanos_is_less_than_one_it_should_fail() {
     ScheduledExecutorService executorService = createExecutorService();
-    try (RetryExecutor retryExecutor = create(executorService, executorService)) {
-      new TimeoutExecutor(retryExecutor, executorService, 0L);
+    try (AsyncRetryExecutor retryExecutor = create(executorService, executorService)) {
+      new TimeoutExecutorService(retryExecutor, executorService, 0L);
     }
   }
 
-  private RetryExecutor create(ScheduledExecutorService executorService, ScheduledExecutorService timeoutExecutor) {
+  private AsyncRetryExecutor create(ScheduledExecutorService executorService, ScheduledExecutorService timeoutExecutor) {
     return Retry
         .async(executorService)
         .timeoutExecutorService(timeoutExecutor)
@@ -99,7 +99,7 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
   }
 
   @Override
-  protected RetryExecutor create() {
+  protected AsyncRetryExecutor create() {
     ScheduledExecutorService executorService = createExecutorService();
     return create(executorService, executorService);
   }

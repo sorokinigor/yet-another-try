@@ -1,6 +1,6 @@
 package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.RetryExecutor;
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,14 +12,14 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author Igor Sorokin
  */
-public final class StatisticsExecutor extends AbstractRetryExecutor {
+public final class StatisticsExecutorService extends AbstractRetryExecutorService {
 
-  private final RetryExecutor delegate;
+  private final AsyncRetryExecutor delegate;
   private final LongAdder successful;
   private final LongAdder failed;
   private final LongAdder failedAttempts;
 
-  public StatisticsExecutor(RetryExecutor delegate) {
+  public StatisticsExecutorService(AsyncRetryExecutor delegate) {
     this.delegate = Objects.requireNonNull(delegate, "'delegate' should not be 'null'.");
     this.successful = new LongAdder();
     this.failed = new LongAdder();

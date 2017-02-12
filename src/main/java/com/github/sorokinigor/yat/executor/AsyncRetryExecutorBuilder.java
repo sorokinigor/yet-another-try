@@ -1,6 +1,6 @@
 package com.github.sorokinigor.yat.executor;
 
-import com.github.sorokinigor.yat.RetryExecutor;
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,16 +19,16 @@ public final class AsyncRetryExecutorBuilder extends AbstractRetryBuilder<AsyncR
   private ScheduledExecutorService timeoutExecutorService;
   private boolean shouldShutdownExecutors = true;
 
-  public RetryExecutor build() {
+  public AsyncRetryExecutor build() {
     Policy policy = buildPolicy(firstAttemptInInvocationThread);
-    RetryExecutor executor = new AsyncRetryExecutor(executorService, policy);
+    AsyncRetryExecutor executor = new RetryExecutorService(executorService, policy);
     if (!shouldShutdownExecutors) {
       executor = new NoShutdownWrapper(executor);
     }
     if (timeoutNanos > 0L) {
       timeoutExecutorService = timeoutExecutorService == null ? executorService
           : timeoutExecutorService;
-      return new TimeoutExecutor(executor, timeoutExecutorService, timeoutNanos);
+      return new TimeoutExecutorService(executor, timeoutExecutorService, timeoutNanos);
     } else {
       return executor;
     }
@@ -82,11 +82,11 @@ public final class AsyncRetryExecutorBuilder extends AbstractRetryBuilder<AsyncR
     return shouldShutdownExecutors(false);
   }
 
-  static final class NoShutdownWrapper extends AbstractRetryExecutor {
+  static final class NoShutdownWrapper extends AbstractRetryExecutorService {
 
-    private final RetryExecutor delegate;
+    private final AsyncRetryExecutor delegate;
 
-    private NoShutdownWrapper(RetryExecutor delegate) {
+    private NoShutdownWrapper(AsyncRetryExecutor delegate) {
       this.delegate = delegate;
     }
 

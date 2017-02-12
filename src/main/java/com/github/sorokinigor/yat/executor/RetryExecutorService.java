@@ -13,12 +13,12 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Igor Sorokin
  */
-final class AsyncRetryExecutor extends AbstractRetryExecutor {
+final class RetryExecutorService extends AbstractRetryExecutorService {
 
   private final ScheduledExecutorService executor;
   private final Policy policy;
 
-  AsyncRetryExecutor(ScheduledExecutorService executor, Policy policy) {
+  RetryExecutorService(ScheduledExecutorService executor, Policy policy) {
     this.executor = Objects.requireNonNull(executor, "'executor' should not be 'null'.");
     this.policy = Objects.requireNonNull(policy, "'policy' should not be 'null'.");
   }
@@ -82,11 +82,11 @@ final class AsyncRetryExecutor extends AbstractRetryExecutor {
   }
 
   private static final class Context<T> {
-    private final AsyncRetryExecutor parentExecutor;
+    private final RetryExecutorService parentExecutor;
     private final CompletableFuture<T> future;
     private final Callable<T> task;
 
-    private Context(AsyncRetryExecutor parentExecutor, CompletableFuture<T> future, Callable<T> task) {
+    private Context(RetryExecutorService parentExecutor, CompletableFuture<T> future, Callable<T> task) {
       this.parentExecutor = parentExecutor;
       this.future = future;
       this.task = task;

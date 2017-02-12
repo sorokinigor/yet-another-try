@@ -1,7 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import com.github.sorokinigor.yat.Retry;
-import com.github.sorokinigor.yat.RetryExecutor;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -19,11 +19,11 @@ import static org.mockito.Mockito.*;
 /**
  * @author Igor Sorokin
  */
-public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
+public class RetryExecutorServiceTest extends AsyncRetryExecutorTestKit {
 
   @Test
   public void it_should_invoke_first_attempt_in_invocation_thread() throws Exception {
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .runFirstAttemptInInvocationThread()
         .build()) {
       Thread currentThread = Thread.currentThread();
@@ -34,7 +34,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
 
   @Test
   public void it_should_invoke_only_first_attempt_in_invocation_thread() throws Exception {
-    try (RetryExecutor executor = createBuilder(createExecutorService()).build()) {
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService()).build()) {
       Thread currentThread = Thread.currentThread();
       AtomicBoolean shouldThrowException = new AtomicBoolean(true);
       CompletableFuture<Thread> future = executor.submit(() -> {
@@ -51,7 +51,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
   @Test
   public void when_task_is_completed_it_should_not_perform_another_attempt() throws Exception {
     long timeoutMillis = 3_000L;
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .runFirstAttemptInInvocationThread()
         .backOff(fixedDelay(timeoutMillis / 3L, TimeUnit.MILLISECONDS))
         .build()) {
@@ -74,7 +74,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
   public void when_task_is_successful_eventually_it_should_perform_the_requested_number_of_attempts_and_return_result()
       throws Exception {
     int maxAttempts = 5;
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .maxAttempts(maxAttempts)
         .build()) {
       String expected = "expected";
@@ -97,7 +97,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
   public void when_task_is_failed_it_should_return_all_of_exception_which_were_thrown_during_invocations()
       throws Exception {
     int maxAttempts = 5;
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .maxAttempts(maxAttempts)
         .build()) {
       Callable<String> task = Mockito.mock(Callable.class);
@@ -128,7 +128,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
       throws Exception {
     Class<? extends Exception> terminateExceptionClass = IllegalStateException.class;
     int expectedAttempts = 2;
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .terminateOn(terminateExceptionClass)
         .maxAttempts(expectedAttempts + 1)
         .build()) {
@@ -149,7 +149,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
       throws Exception {
     Class<? extends Exception> retryableExceptionClass = IllegalStateException.class;
     int expectedAttempts = 2;
-    try (RetryExecutor executor = createBuilder(createExecutorService())
+    try (AsyncRetryExecutor executor = createBuilder(createExecutorService())
         .retryOn(retryableExceptionClass)
         .maxAttempts(expectedAttempts + 1)
         .build()) {
@@ -168,7 +168,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
   @SuppressWarnings("unchecked")
   @Test
   public void it_should_schedule_next_attempt_if_the_thread_was_interrupted() throws Exception {
-    try (RetryExecutor executor = create()) {
+    try (AsyncRetryExecutor executor = create()) {
       Callable<String> task = Mockito.mock(Callable.class);
       when(task.call())
           .thenAnswer(answer -> {
@@ -184,7 +184,7 @@ public class AsyncRetryExecutorTest extends RetryExecutorTestKit {
   }
 
   @Override
-  protected RetryExecutor create() {
+  protected AsyncRetryExecutor create() {
     return createBuilder(createExecutorService())
         .build();
   }
