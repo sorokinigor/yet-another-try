@@ -37,7 +37,7 @@ final class Policy {
   }
 
   boolean shouldRetry(Exception exception) {
-    return exceptionFilter.test(exception);
+    return exceptionFilter.test(Objects.requireNonNull(exception, "'exception' should not be 'null'."));
   }
 
   @Override
