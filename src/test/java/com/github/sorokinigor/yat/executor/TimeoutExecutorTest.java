@@ -80,6 +80,14 @@ public class TimeoutExecutorTest extends RetryExecutorTestKit {
     assertShutdown(executor, executorService, timeoutExecutor);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void when_timeout_nanos_is_less_than_one_it_should_fail() {
+    ScheduledExecutorService executorService = createExecutorService();
+    try (RetryExecutor retryExecutor = create(executorService, executorService)) {
+      new TimeoutExecutor(retryExecutor, executorService, 0L);
+    }
+  }
+
   private RetryExecutor create(ScheduledExecutorService executorService, ScheduledExecutorService timeoutExecutor) {
     return Retry
         .async(executorService)

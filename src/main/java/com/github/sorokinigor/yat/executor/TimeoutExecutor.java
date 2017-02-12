@@ -21,6 +21,9 @@ final class TimeoutExecutor extends AbstractRetryExecutor {
   TimeoutExecutor(RetryExecutor delegate, ScheduledExecutorService timeoutScheduler, long timeoutNanos) {
     this.delegate = Objects.requireNonNull(delegate, "'delegate' should not be 'null'.");
     this.timeoutScheduler = Objects.requireNonNull(timeoutScheduler, "'timeoutScheduler' should not be 'null'.");
+    if (timeoutNanos <= 0L) {
+      throw new IllegalArgumentException("'timeoutNanos' must be > 0.");
+    }
     this.timeoutNanos = timeoutNanos;
   }
 

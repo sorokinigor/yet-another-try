@@ -13,13 +13,13 @@ final class ExponentialBackoff implements Backoff {
   private final double randomFactor;
 
   ExponentialBackoff(long minNanos, long maxNanos, double randomFactor) {
-    if (minNanos < 0) {
+    if (minNanos < 0L) {
       throw new IllegalArgumentException("'minNanos' must be >= '0'.");
     }
     if (maxNanos < minNanos) {
       throw new IllegalArgumentException("'maxNanos' must be >= 'minNanos'.");
     }
-    if (randomFactor < 0.0 || randomFactor > 1.0) {
+    if (randomFactor < 0.0D || randomFactor > 1.0D) {
       throw new IllegalArgumentException("'randomFactor' must be between '0.0' and '1.0'.");
     }
     this.minNanos = minNanos;
@@ -32,8 +32,8 @@ final class ExponentialBackoff implements Backoff {
     if (attempt > MAX_ATTEMPT) {
       return maxNanos;
     }
-    double rnd = 1.0 + ThreadLocalRandom.current().nextDouble() * randomFactor;
-    return (long) (Math.min(maxNanos, minNanos * Math.pow(2, attempt)) * rnd);
+    double rnd = 1.0D + ThreadLocalRandom.current().nextDouble() * randomFactor;
+    return (long) (Math.min(maxNanos, minNanos * Math.pow(2.0D, attempt)) * rnd);
   }
 
   @Override

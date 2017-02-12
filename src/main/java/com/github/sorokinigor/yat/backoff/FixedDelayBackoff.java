@@ -8,7 +8,7 @@ final class FixedDelayBackoff implements Backoff {
   private final long durationNanos;
 
   FixedDelayBackoff(long durationNanos) {
-    if (durationNanos < 0) {
+    if (durationNanos < 0L) {
       throw new IllegalArgumentException("'durationNanos' must be >= '0'.");
     }
     this.durationNanos = durationNanos;

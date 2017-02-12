@@ -8,7 +8,7 @@ final class FixedRateBackoff implements Backoff {
   private final long durationNanos;
 
   FixedRateBackoff(long durationNanos) {
-    if (durationNanos < 0) {
+    if (durationNanos < 0L) {
       throw new IllegalArgumentException("'durationNanos' must be >= 0.");
     }
     this.durationNanos = durationNanos;
@@ -17,7 +17,7 @@ final class FixedRateBackoff implements Backoff {
   @Override
   public long calculateDelayNanos(int attempt, long executionDurationNanos) {
     if (executionDurationNanos >= durationNanos) {
-      return 0;
+      return 0L;
     } else {
       return durationNanos - executionDurationNanos;
     }
