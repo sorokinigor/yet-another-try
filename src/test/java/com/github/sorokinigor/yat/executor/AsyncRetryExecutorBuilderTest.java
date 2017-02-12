@@ -10,6 +10,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -28,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AsyncRetryExecutorBuilderTest {
 
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-
 
   @Test
   public void when_executor_is_set_it_should_be_able_to_create_retry_executor() {
@@ -261,6 +261,46 @@ public class AsyncRetryExecutorBuilderTest {
         .assertBuilt();
   }
 
+  @Test
+  public void it_should_set_should_shutdown_executors() {
+    assertThat(createBuilder())
+        .assertIsSet(
+            builder -> {
+              boolean shouldShutdownExecutors = false;
+              builder.shouldShutdownExecutors(shouldShutdownExecutors);
+              return shouldShutdownExecutors;
+            },
+            AsyncRetryExecutorBuilder::shouldShutdownExecutors
+        )
+        .assertIsSet(
+            builder -> { builder.shutdownExecutors(); return true; },
+            AsyncRetryExecutorBuilder::shouldShutdownExecutors
+        )
+        .assertIsSet(
+            builder -> { builder.doNotShutdownExecutors(); return false; },
+            AsyncRetryExecutorBuilder::shouldShutdownExecutors
+        )
+        .verify(builder -> {
+          RetryExecutor executor = builder.build();
+          executor.shutdown();
+          assertThat(executor.shutdownNow())
+              .isEmpty();
+          try {
+            assertThat(executor.awaitTermination(1L, TimeUnit.SECONDS))
+                .isFalse();
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+          }
+
+          executor.submit(() -> {});
+          assertThat(Arrays.asList(executor, executorService))
+              .allMatch(e -> !e.isShutdown())
+              .allMatch(e -> !e.isTerminated());
+        })
+        .assertBuilt(AsyncRetryExecutorBuilder.NoShutdownWrapper.class);
+  }
+
   private AsyncRetryExecutorBuilder createBuilder() {
     return Retry.async(executorService);
   }
@@ -321,6 +361,5 @@ public class AsyncRetryExecutorBuilderTest {
     }
 
   }
-
 
 }
