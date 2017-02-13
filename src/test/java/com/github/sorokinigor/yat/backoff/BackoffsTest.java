@@ -17,4 +17,14 @@ public class BackoffsTest {
         .isEqualTo(0L);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void when_attempt_is_negative_it_should_fail() {
+    Backoffs.validateBackoffInput(-1, 10L);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void when_executionDurationNanos_is_negative_it_should_fail() {
+    Backoffs.validateBackoffInput(1, -10L);
+  }
+
 }

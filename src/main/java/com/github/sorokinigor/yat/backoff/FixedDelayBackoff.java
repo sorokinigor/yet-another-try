@@ -1,6 +1,10 @@
 package com.github.sorokinigor.yat.backoff;
 
+import static com.github.sorokinigor.yat.backoff.Backoffs.validateBackoffInput;
+
 /**
+ * INTERNAL API
+ *
  * @author Igor Sorokin
  */
 final class FixedDelayBackoff implements Backoff {
@@ -16,6 +20,7 @@ final class FixedDelayBackoff implements Backoff {
 
   @Override
   public long calculateDelayNanos(int attempt, long executionDurationNanos) {
+    validateBackoffInput(attempt, executionDurationNanos);
     return durationNanos;
   }
 

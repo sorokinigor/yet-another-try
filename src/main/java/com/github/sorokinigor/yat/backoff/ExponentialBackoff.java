@@ -2,7 +2,11 @@ package com.github.sorokinigor.yat.backoff;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.github.sorokinigor.yat.backoff.Backoffs.validateBackoffInput;
+
 /**
+ * INTERNAL API
+ *
  * @author Igor Sorokin
  */
 final class ExponentialBackoff implements Backoff {
@@ -29,6 +33,7 @@ final class ExponentialBackoff implements Backoff {
 
   @Override
   public long calculateDelayNanos(int attempt, long executionDurationNanos) {
+    validateBackoffInput(attempt, executionDurationNanos);
     if (attempt > MAX_ATTEMPT) {
       return maxNanos;
     }
