@@ -10,7 +10,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * INTERNAL API
+ *
  * @author Igor Sorokin
+ * @see AsyncRetryExecutorBuilder
+ * @see AsyncRetryExecutor
  */
 final class TimeoutExecutorService extends AbstractRetryExecutorService {
 

@@ -1,6 +1,8 @@
 package com.github.sorokinigor.yat.executor;
 
 import com.github.sorokinigor.yat.AsyncRetryExecutor;
+import com.github.sorokinigor.yat.Retry;
+import com.github.sorokinigor.yat.backoff.Backoff;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +12,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * A builder for the {@link AsyncRetryExecutor}.
+ * <p>
+ * Configurable parameters:
+ * <ul>
+ * <li>{@link ScheduledExecutorService} for task execution and timeout handling.
+ * <li>max number of attempts {@link AsyncRetryExecutorBuilder#maxAttempts(int)}
+ * <li>timeout {@link AsyncRetryExecutorBuilder#timeout(long, TimeUnit)}
+ * <li>delay between attempts {@link AsyncRetryExecutorBuilder#backOff(Backoff)}
+ * <li>which exceptions should be retried {@link AsyncRetryExecutorBuilder#retryOn(Class)}
+ * and which should not {@link AsyncRetryExecutorBuilder#terminateOn(Class)}.
+ * <li>whenever or not use the invocation thread for the first attempt
+ * {@link AsyncRetryExecutorBuilder#runFirstAttemptInInvocationThread()}
+ * <li>whenever or not the shutdown the passed {@link ScheduledExecutorService} or not
+ * {@link AsyncRetryExecutorBuilder#doNotShutdownExecutors()}
+ * </ul>
+ *
  * @author Igor Sorokin
+ * @see AbstractRetryBuilder
+ * @see Backoff
+ * @see Retry
  */
 public final class AsyncRetryExecutorBuilder extends AbstractRetryBuilder<AsyncRetryExecutorBuilder> {
 

@@ -14,25 +14,51 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * The main entry point of the library.
+ * <p>
+ * Contains the utility methods for instantiation
+ * both {@link AsyncRetryExecutor} and {@link SyncRetryExecutor}.
+ *
  * @author Igor Sorokin
  */
 public final class Retry {
 
   private Retry() { throw new IllegalStateException("Not expected to be instantiated"); }
 
+  /**
+   * @param executorService non null reference to executor service
+   * @return the builder, where the passed {@code executorService} is configured to be used for task execution.
+   */
   public static AsyncRetryExecutorBuilder async(ScheduledExecutorService executorService) {
     return new AsyncRetryExecutorBuilder()
         .executorService(executorService);
   }
 
+  /**
+   * @return default lazy singleton instance of {@link AsyncRetryExecutor}.
+   * It is lazily instantiated on first usage and creates a shutdown hook for the underlying
+   * {@link ScheduledExecutorService} shutting down.
+   */
   public static AsyncRetryExecutor async() {
     return DefaultAsyncExecutor.INSTANCE;
   }
 
+  /**
+   * @return the passed {@code executor} wrapped with {@link StatisticsExecutorService}
+   */
   public static StatisticsExecutorService gatherStatisticFor(AsyncRetryExecutor executor) {
     return new StatisticsExecutorService(executor);
   }
 
+  /**
+   * @return an empty {@link SyncRetryExecutorBuilder}.
+   * For ad hoc retries use:
+   * <PRE>
+   * {@code String result = Retry.sync()
+   *     .timeout(5L, TimeUnit.SECONDS)
+   *     .execute(() -> "result") }
+   * </PRE>
+   */
   public static SyncRetryExecutorBuilder sync() {
     return new SyncRetryExecutorBuilder();
   }

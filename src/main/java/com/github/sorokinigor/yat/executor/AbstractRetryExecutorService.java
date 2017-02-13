@@ -9,6 +9,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
+ * INTERNAL API
+ * <p>
  * A trait, which implements most of the methods of {@link AsyncRetryExecutor}.
  *
  * @author Igor Sorokin

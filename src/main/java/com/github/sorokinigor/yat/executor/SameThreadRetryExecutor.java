@@ -12,7 +12,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
+ * INTERNAL API
+ * <p>
+ * The core implementation of {@link SyncRetryExecutor}.
+ *
  * @author Igor Sorokin
+ * @see Policy
+ * @see SyncRetryExecutor
  */
 final class SameThreadRetryExecutor implements SyncRetryExecutor {
 
@@ -30,8 +36,8 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
   }
 
   @Override
-  public <T> T execute(Callable<? extends T> supplier) {
-    Objects.requireNonNull(supplier, "'supplier' should not be 'null'.");
+  public <T> T execute(Callable<? extends T> task) {
+    Objects.requireNonNull(task, "'supplier' should not be 'null'.");
     Exception lastException = null;
     int attempt = 0;
     Thread currentThread = Thread.currentThread();
@@ -56,7 +62,7 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
 
       long start = System.nanoTime();
       try {
-        return supplier.call();
+        return task.call();
       } catch (Exception e) {
         long finish = System.nanoTime();
         if (lastException != null) {
@@ -85,11 +91,11 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
   }
 
   @Override
-  public <T> Optional<T> tryExecute(Callable<? extends T> supplier) {
+  public <T> Optional<T> tryExecute(Callable<? extends T> task) {
     try {
-      return Optional.ofNullable(execute(supplier));
+      return Optional.ofNullable(execute(task));
     } catch (Exception e) {
-      logger.error("Unable to execute task '{}'.", supplier, e);
+      logger.error("Unable to execute task '{}'.", task, e);
       return Optional.empty();
     }
   }

@@ -1,5 +1,6 @@
 package com.github.sorokinigor.yat.executor;
 
+import com.github.sorokinigor.yat.AsyncRetryExecutor;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -10,8 +11,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * INTERNAL API
+ * <p>
+ * The core implementation of {@link AsyncRetryExecutor}.
+ * Does all the work regarding re-scheduling task execution,
+ * maintaining the current attempt number and encountered exceptions.
+ * <p>
+ * Manages the lifecycle of the underlying {@link ScheduledExecutorService}.
  *
  * @author Igor Sorokin
+ * @see Policy
  */
 final class RetryExecutorService extends AbstractRetryExecutorService {
 

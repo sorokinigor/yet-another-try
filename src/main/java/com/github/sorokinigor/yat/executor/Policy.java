@@ -6,7 +6,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
+ * INTERNAL API
+ * <p>
+ * Holds the configuration parameters of both {@link RetryExecutorService}
+ * and {@link SameThreadRetryExecutor}.
+ *
  * @author Igor Sorokin
+ * @see AbstractRetryBuilder
  */
 final class Policy {
 

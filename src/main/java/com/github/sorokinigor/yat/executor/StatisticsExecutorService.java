@@ -1,6 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
 import com.github.sorokinigor.yat.AsyncRetryExecutor;
+import com.github.sorokinigor.yat.Retry;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +11,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
+ * A simple wrapper for the {@link AsyncRetryExecutor} executor, which collects the number of
+ * failed attempts and the number of successful and failed tasks.
+ * <p>
+ * The stats are available via {@link StatisticsExecutorService#stats()} method.
+ *
  * @author Igor Sorokin
+ * @see Retry#gatherStatisticFor(AsyncRetryExecutor)
+ * @see Stats
+ * @see AsyncRetryExecutor
  */
 public final class StatisticsExecutorService extends AbstractRetryExecutorService {
 
@@ -47,16 +56,23 @@ public final class StatisticsExecutorService extends AbstractRetryExecutorServic
         });
   }
 
+  /**
+   * @return the number of successful/failed tasks and failed attempts
+   * wrapped with {@link Stats}
+   */
   public Stats stats() {
     return new Stats(successful.longValue(), failed.longValue(), failedAttempts.longValue());
   }
 
+  /**
+   * A value object, which stores the metrics.
+   */
   public static final class Stats {
     public final long successful;
     public final long failed;
     public final long failedAttempts;
 
-    public Stats(long successful, long failed, long failedAttempts) {
+    Stats(long successful, long failed, long failedAttempts) {
       this.successful = successful;
       this.failed = failed;
       this.failedAttempts = failedAttempts;
@@ -91,8 +107,8 @@ public final class StatisticsExecutorService extends AbstractRetryExecutorServic
 
   @Override
   public void shutdown() {
-    logger.info("Stats: '{}'.", stats());
     delegate.shutdown();
+    logger.info("Stats: '{}'.", stats());
   }
 
   @Override
