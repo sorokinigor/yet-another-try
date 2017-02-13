@@ -227,6 +227,8 @@ public class AsyncRetryExecutorBuilderTest {
   public void it_should_append_termination_predicates() {
     Exception firstTerminationException = new IllegalStateException();
     Exception secondTerminationException = new IllegalArgumentException();
+    int retryCode = 1;
+    int terminateCode = 20;
     assertThat(createBuilder())
         .setAndVerify(
             builder -> {
@@ -258,7 +260,43 @@ public class AsyncRetryExecutorBuilderTest {
                   .isTrue();
             }
         )
+        .setAndVerify(
+            builder -> {
+              Class<TestException> exceptionClazz = TestException.class;
+              builder.retryOn(exceptionClazz, e -> e.code == retryCode);
+              builder.terminateOn(exceptionClazz, e -> e.code == terminateCode);
+              return exceptionClazz;
+            },
+            (builder, expected) -> {
+              Predicate<Exception> retryPredicate = builder.retryPredicate();
+              boolean shouldRetry = retryPredicate.test(new TestException(retryCode));
+              assertThat(shouldRetry)
+                  .isTrue();
+              boolean shouldNotRetry = retryPredicate.test(new TestException(retryCode + 1));
+              assertThat(shouldNotRetry)
+                  .isFalse();
+
+              Predicate<Exception> terminatePredicate = builder.terminatePredicate();
+              boolean shouldTerminate = terminatePredicate.test(new TestException(terminateCode));
+              assertThat(shouldTerminate)
+                  .isTrue();
+              boolean shouldNotTerminate = terminatePredicate.test(new TestException(terminateCode + 1));
+              assertThat(shouldNotTerminate)
+                  .isFalse();
+              boolean shouldTerminateOnFirst = terminatePredicate.test(firstTerminationException);
+              assertThat(shouldTerminateOnFirst)
+                  .isTrue();
+            }
+        )
         .assertBuilt();
+  }
+
+  private static final class TestException extends Exception {
+    private final int code;
+
+    public TestException(int code) {
+      this.code = code;
+    }
   }
 
   @Test

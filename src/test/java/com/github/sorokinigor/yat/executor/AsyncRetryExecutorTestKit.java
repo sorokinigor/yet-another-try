@@ -1,6 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
 import com.github.sorokinigor.yat.AsyncRetryExecutor;
+import org.assertj.core.api.Condition;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -187,18 +188,22 @@ public abstract class AsyncRetryExecutorTestKit {
   public void when_all_of_the_task_are_completed_successfully_it_should_return_the_result_of_the_first_successful_one()
       throws Exception {
     try (AsyncRetryExecutor executor = create()) {
-      String expected = "value";
+      String first = "first";
+      String second = "second";
 
       String actual = executor.invokeAny(
           Arrays.asList(
-              successfulCallable(expected),
-              successfulCallable("notExpected")
+              successfulCallable(first),
+              successfulCallable(second)
           ),
           3L,
           TimeUnit.SECONDS
       );
       assertThat(actual)
-          .isEqualTo(expected);
+          .is(new Condition<>(
+              value -> first.equals(value) || second.equals(value),
+              "One of: '" + first + "', '" + second + "'."
+          ));
     }
   }
 

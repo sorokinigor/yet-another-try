@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 /**
+ * INTERNAL API
+ *
  * @author Igor Sorokin
  */
 abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
@@ -110,6 +112,13 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
     return retryPredicate(exceptionClass::isInstance);
   }
 
+  @SuppressWarnings("unchecked")
+  public final <E extends Exception> B retryOn(Class<E> exceptionClass, Predicate<E> predicate) {
+    Objects.requireNonNull(exceptionClass, "'exceptionClass' should not be 'null'.");
+    Objects.requireNonNull(predicate, "'predicate' should not be 'null'.");
+    return retryPredicate(exception -> exceptionClass.isInstance(exception) && predicate.test((E) exception));
+  }
+
   public final Predicate<Exception> terminatePredicate() {
     return terminatePredicate == null ? e -> false
         : terminatePredicate;
@@ -127,6 +136,13 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   public final B terminateOn(Class<? extends Exception> exceptionClass) {
     Objects.requireNonNull(exceptionClass, "'exceptionClass' should not be 'null'.");
     return terminatePredicate(exceptionClass::isInstance);
+  }
+
+  @SuppressWarnings("unchecked")
+  public final <E extends Exception> B terminateOn(Class<E> exceptionClass, Predicate<E> predicate) {
+    Objects.requireNonNull(exceptionClass, "'exceptionClass' should not be 'null'.");
+    Objects.requireNonNull(predicate, "'predicate' should not be 'null'.");
+    return terminatePredicate(exception -> exceptionClass.isInstance(exception) && predicate.test((E) exception));
   }
 
   public final Backoff backOff() {
