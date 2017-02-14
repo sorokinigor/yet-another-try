@@ -2,8 +2,8 @@
 [![Build Status](https://travis-ci.org/sorokinigor/yet-another-try.svg?branch=master)](https://travis-ci.org/sorokinigor/yet-another-try)
 [![codecov](https://codecov.io/gh/sorokinigor/yet-another-try/branch/master/graph/badge.svg)](https://codecov.io/gh/sorokinigor/yet-another-try)
 
-* [Prerequisites](#prerequisites)
 * [Features](#features)
+* [Dependencies and prerequisites](#dependencies-and-prerequisites)
 * [Usage](#usage)
    * [Asynchronous](#asynchronous)
      * [Timeout](#timeout)
@@ -15,9 +15,6 @@
      * [Default executor](#default-executor)
      * [Statistics](#statistics)
    * [Synchronous](#synchronous)
-
-# Prerequisites
-* Java 8
 
 # Features
 * Configure: 
@@ -34,6 +31,27 @@ therefore it is fully compatible with the code, which uses
 as a return type.
 * Has both [asynchronous](#asynchronous) and [synchronous](#synchronous) versions.
 * Collect statistics about successful and failed attempts if [requested](). 
+
+#Dependencies and prerequisites
+The library requires **Java 8+**. Use the following code snippets to add the library to your project:
+* Gradle
+```Groovy
+dependencies {
+    compile "com.github.sorokinigor:yet-another-try:1.0.0"
+}
+
+repositories {
+    mavenCentral()
+}
+```
+* Maven
+```xml
+<dependency>
+  <groupId>com.github.sorokinigor</groupId>
+  <artifactId>yet-another-try</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 # Usage
 The main entry point is 
