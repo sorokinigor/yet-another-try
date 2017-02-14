@@ -1,6 +1,7 @@
 # Yet Another Try
 [![Build Status](https://travis-ci.org/sorokinigor/yet-another-try.svg?branch=master)](https://travis-ci.org/sorokinigor/yet-another-try)
 [![codecov](https://codecov.io/gh/sorokinigor/yet-another-try/branch/master/graph/badge.svg)](https://codecov.io/gh/sorokinigor/yet-another-try)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.sorokinigor/yet-another-try.svg?label=Maven%20Central)](http://search.maven.org/#artifactdetails%7Ccom.github.sorokinigor%7Cyet-another-try%7C1.0.0%7Cjar)
 
 * [Features](#features)
 * [Dependencies and prerequisites](#dependencies-and-prerequisites)
