@@ -31,7 +31,8 @@ therefore it is fully compatible with the code, which uses
 * Uses [CompletableFuture](http://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
 as a return type.
 * Has both [asynchronous](#asynchronous) and [synchronous](#synchronous) versions.
-* Collect statistics about successful and failed attempts if [requested](). 
+* Collects statistics about successful and failed attempts if 
+[requested](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/executor/StatisticsExecutorService.html). 
 
 #Dependencies and prerequisites
 The library requires **Java 8+**. Use the following code snippets to add the library to your project:
@@ -56,7 +57,7 @@ repositories {
 
 # Usage
 The main entry point is 
-[Retry](https://github.com/sorokinigor/yet-another-try/blob/master/src/main/java/com/github/sorokinigor/yat/Retry.java) utility class.
+[Retry](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/Retry.html) utility class.
 ```java
 /*
   Uses the current thread for the first attempt
@@ -119,10 +120,12 @@ CompletableFuture<Integer> result = executor.submit(() -> {
     })
     .thenApply(numberOfBytesRead -> numberOfBytesRead / 2);
 ```
-Please note that by default [AsyncRetryExecutor](https://github.com/sorokinigor/yet-another-try/blob/master/src/main/java/com/github/sorokinigor/yat/AsyncRetryExecutor.java)
+Please note that by default 
+[AsyncRetryExecutor](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/AsyncRetryExecutor.html)
 manages the lifecycle of the passed 
 [ScheduledExecutorService](http://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledExecutorService.html).
-Consequently, the [AsyncRetryExecutor]() will shutdown underlying 
+Consequently, the 
+[AsyncRetryExecutor](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/AsyncRetryExecutor.html) will shutdown underlying 
 [ScheduledExecutorService](http://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledExecutorService.html).
 If you want to prevent it, use:
 ```java
@@ -158,11 +161,11 @@ AsyncRetryExecutor executor = Retry.async(taskExecutor)
 ### Delay
 The library itself contains exponential **(default and preferable)**, fixed delay and fixed rate backoffs 
 for delay calculation. But, feel free to implement your own backoff strategy, as the 
-[Backoff](https://github.com/sorokinigor/yet-another-try/blob/master/src/main/java/com/github/sorokinigor/yat/backoff/Backoff.java) 
+[Backoff](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoff.html) 
 interface is a part of the public API.
 
 In order to instantiate the built-in backoff strategies use 
-[Backoffs](https://github.com/sorokinigor/yet-another-try/blob/master/src/main/java/com/github/sorokinigor/yat/backoff/Backoffs.java)
+[Backoffs](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoffs.html)
 utility class. 
 #### Exponential
 The delay is exponentially increases until it reaches the upper bound for the delay or the number of attempts.
