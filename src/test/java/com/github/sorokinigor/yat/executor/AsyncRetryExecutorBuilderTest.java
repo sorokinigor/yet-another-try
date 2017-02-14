@@ -275,6 +275,8 @@ public class AsyncRetryExecutorBuilderTest {
               boolean shouldNotRetry = retryPredicate.test(new TestException(retryCode + 1));
               assertThat(shouldNotRetry)
                   .isFalse();
+              assertThat(retryPredicate.test(new RuntimeException()))
+                  .isFalse();
 
               Predicate<Exception> terminatePredicate = builder.terminatePredicate();
               boolean shouldTerminate = terminatePredicate.test(new TestException(terminateCode));
@@ -283,9 +285,8 @@ public class AsyncRetryExecutorBuilderTest {
               boolean shouldNotTerminate = terminatePredicate.test(new TestException(terminateCode + 1));
               assertThat(shouldNotTerminate)
                   .isFalse();
-              boolean shouldTerminateOnFirst = terminatePredicate.test(firstTerminationException);
-              assertThat(shouldTerminateOnFirst)
-                  .isTrue();
+              assertThat(terminatePredicate.test(new RuntimeException()))
+                  .isFalse();
             }
         )
         .assertBuilt();
