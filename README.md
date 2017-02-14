@@ -32,7 +32,7 @@ therefore it is fully compatible with the code, which uses
 as a return type.
 * Has both [asynchronous](#asynchronous) and [synchronous](#synchronous) versions.
 * Collects statistics about successful and failed attempts if 
-[requested](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/Retry.html#gatherStatisticFor-com.github.sorokinigor.yat.AsyncRetryExecutor-). 
+[requested](#statistics). 
 
 #Dependencies and prerequisites
 The library requires **Java 8+**. Use the following code snippets to add the library to your project:
