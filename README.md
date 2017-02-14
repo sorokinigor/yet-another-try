@@ -209,10 +209,10 @@ AsyncRetryExecutor executor = Retry.async(Executors.newSingleThreadScheduledExec
      .build();
 ```
 Notice that the task is retried only if: 
-* all of the retry predicates returns `true` or you didn't specify any (in that case there is a default predicate,
+* Any of the retry predicates returns `true` or you didn't specify any (in that case there is a default retry predicate,
 which always returns `true`).
-* all of the terminate predicates returns `false` or you didn't specify any (in that case there is a default predicate,
-which always returns `false`).
+* None of the terminate predicates returns `true` or you didn't specify any (in that case there is a
+default terminate predicate, which always returns `false`).
 
 ### Default executor
 A default lazy singleton instance of [asynchronous](#asynchronous) executor is available via
