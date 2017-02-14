@@ -32,7 +32,7 @@ therefore it is fully compatible with the code, which uses
 as a return type.
 * Has both [asynchronous](#asynchronous) and [synchronous](#synchronous) versions.
 * Collects statistics about successful and failed attempts if 
-[requested](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/executor/StatisticsExecutorService.html). 
+[requested](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/Retry.html#gatherStatisticFor-com.github.sorokinigor.yat.AsyncRetryExecutor-). 
 
 #Dependencies and prerequisites
 The library requires **Java 8+**. Use the following code snippets to add the library to your project:
@@ -168,7 +168,8 @@ In order to instantiate the built-in backoff strategies use
 [Backoffs](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoffs.html)
 utility class. 
 #### Exponential
-The delay is exponentially increases until it reaches the upper bound for the delay or the number of attempts.
+The [delay](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoffs.html#exponential-long-long-java.util.concurrent.TimeUnit-double-) 
+is exponentially increases until it reaches the upper bound for the delay or the number of attempts.
 After the calculation of the exponential backoff, it also adds an additional random delay based on the passed random 
 factor. For instance, `0.2` adds up to `20%` delay. Example:
 ```java
@@ -178,15 +179,16 @@ AsyncRetryExecutor executor = Retry.async(Executors.newSingleThreadScheduledExec
 ```
 
 #### Fixed delay
-It always uses the same delay for each attempt. Example:
+[It](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoffs.html#fixedDelay-long-java.util.concurrent.TimeUnit-)
+always uses the same delay for each attempt. Example:
 ```java
 AsyncRetryExecutor executor = Retry.async(Executors.newSingleThreadScheduledExecutor())
     .backOff(Backoffs.fixedDelay(1L, TimeUnit.SECONDS))
     .build();
 ```
 #### Fixed rate
-It subtracts the task execution time from the delay. If the execution time is greater than or equal the delay, 
-the delay is 0. Example:
+[It](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/backoff/Backoffs.html#fixedRate-long-java.util.concurrent.TimeUnit-)
+subtracts the task execution time from the delay. If the execution time is greater than or equal the delay, the delay is 0. Example:
 ```java
 AsyncRetryExecutor executor = Retry.async(Executors.newSingleThreadScheduledExecutor())
     .backOff(Backoffs.fixedRate(1L, TimeUnit.SECONDS))
@@ -213,7 +215,9 @@ which always returns `true`).
 which always returns `false`).
 
 ### Default executor
-A default lazy singleton instance of [asynchronous](#asynchronous) executor is available via `Retry.async()` method. Example:
+A default lazy singleton instance of [asynchronous](#asynchronous) executor is available via
+[Retry.async()](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/Retry.html#async--) 
+method. Example:
 ```java
 CompletableFuture<String> future = Retry.async()
     .submit(() -> faultyResource("request"));
@@ -223,7 +227,8 @@ It is lazily instantiated on first usage and creates a shutdown hook for the int
 shutting down.
 
 ### Statistics 
-There is a simple wrapper for the [asynchronous](#asynchronous) executor, which collects the number of 
+There is a simple [wrapper](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/executor/StatisticsExecutorService.html)
+for the [asynchronous](#asynchronous) executor, which collects the number of 
 failed attempts and the number of successful and failed tasks. Example:
 ```java
 AsyncRetryExecutor executor = Retry.async(Executors.newSingleThreadScheduledExecutor())
@@ -240,7 +245,8 @@ successful.thenAcceptBoth(failed, (ignored1, ignored2) -> {})
 ```
 
 ## Synchronous  
-The synchronous executor does not use any thread pool, instead, it uses the current thread for task execution.
+The [synchronous executor](https://static.javadoc.io/com.github.sorokinigor/yet-another-try/1.0.0/com/github/sorokinigor/yat/SyncRetryExecutor.html)
+does not use any thread pool, instead, it uses the current thread for task execution.
 It has approximately the same configuration as [asynchronous](#asynchronous) one, except
 the settings related to 
 [ScheduledExecutorService](http://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledExecutorService.html).
