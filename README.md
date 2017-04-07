@@ -34,7 +34,7 @@ as a return type.
 * Collects statistics about successful and failed attempts if 
 [requested](#statistics). 
 
-#Dependencies and prerequisites
+# Dependencies and prerequisites
 The library requires **Java 8+**. Use the following code snippets to add the library to your project:
 * Gradle
 ```Groovy
