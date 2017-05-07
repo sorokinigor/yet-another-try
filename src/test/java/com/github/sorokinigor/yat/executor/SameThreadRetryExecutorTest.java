@@ -226,6 +226,16 @@ public class SameThreadRetryExecutorTest {
         .isEmpty();
   }
 
+  @Test
+  public void when_execution_is_failed_with_fatal_exception_it_should_fail_immediately() {
+    InterruptedException fatalException = new InterruptedException();
+    assertFailedWith(Retry.sync(), () -> { throw fatalException; }, fatalException.getClass());
+    assertThat(Thread.currentThread().isInterrupted())
+        .isTrue();
+    Thread.interrupted();
+  }
+
+  @SuppressWarnings("unchecked")
   private <T, E extends Exception> E assertFailedWith(
       SyncRetryExecutor executor,
       Callable<T> task,

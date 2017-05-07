@@ -56,6 +56,7 @@ final class RetryExecutorService extends AbstractRetryExecutorService {
       this.context = context;
     }
 
+    @SuppressWarnings("ThrowableNotThrown")
     @Override
     public void run() {
       if (context.future.isDone()) {
@@ -67,9 +68,11 @@ final class RetryExecutorService extends AbstractRetryExecutorService {
           context.future.complete(context.task.call());
         } catch (Exception e) {
           long finish = System.nanoTime();
-          if (lastException != null) {
-            e.addSuppressed(lastException);
+          ExceptionUtils.addSuppressed(e, lastException);
+          if (e instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
           }
+
           Policy policy = context.delayPolicy();
           int maxAttempts = policy.maxAttempts;
           int nextAttempt = attempt + 1;

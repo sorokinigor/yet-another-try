@@ -56,6 +56,7 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
         } catch (InterruptedException e) {
           logger.warn("Execution has been interrupted.");
           currentThread.interrupt();
+          lastException = ExceptionUtils.addSuppressed(e, lastException);
           break;
         }
       }
@@ -65,10 +66,10 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
         return task.call();
       } catch (Exception e) {
         long finish = System.nanoTime();
-        if (lastException != null) {
-          e.addSuppressed(lastException);
+        lastException = ExceptionUtils.addSuppressed(e, lastException);
+        if (e instanceof InterruptedException) {
+          currentThread.interrupt();
         }
-        lastException = e;
 
         if (timeoutNanos > 0L) {
           timeoutDelta = deadline - finish;
