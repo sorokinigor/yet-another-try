@@ -1,6 +1,7 @@
 package com.github.sorokinigor.yat.executor;
 
 import com.github.sorokinigor.yat.AsyncRetryExecutor;
+import com.github.sorokinigor.yat.Retry;
 import org.assertj.core.api.Condition;
 import org.testng.annotations.Test;
 
@@ -211,6 +212,22 @@ public abstract class AsyncRetryExecutorTestKit {
   public void when_none_of_tasks_are_completed_within_timeout_it_should_fail() throws Exception {
     try (AsyncRetryExecutor executor = create()) {
       executor.invokeAny(Collections.singletonList(infiniteLoopCallable()), 1, TimeUnit.MILLISECONDS);
+    }
+  }
+
+  @Test
+  public void when_exception_is_fatal_it_should_fail() throws InterruptedException {
+    Class<? extends Exception> fatalExceptionClass = AbstractRetryBuilder.FATAL_EXCEPTIONS.stream()
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("No fatal exceptions are found."));
+
+    try (StatisticsExecutorService executor = Retry.gatherStatisticFor(create())) {
+      CompletableFuture<Object> future = executor.submit(() -> { throw fatalExceptionClass.newInstance(); });
+      assertFailedWith(future, fatalExceptionClass);
+
+      StatisticsExecutorService.Stats stats = executor.stats();
+      assertThat(stats.failedAttempts)
+          .isEqualTo(1L);
     }
   }
 

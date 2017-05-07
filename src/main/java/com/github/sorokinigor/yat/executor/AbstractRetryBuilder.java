@@ -4,8 +4,11 @@ import com.github.sorokinigor.yat.backoff.Backoff;
 import com.github.sorokinigor.yat.backoff.Backoffs;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * INTERNAL API
@@ -14,12 +17,17 @@ import java.util.function.Predicate;
  */
 abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
 
+  static final Set<Class<? extends Exception>> FATAL_EXCEPTIONS = Stream.of(InterruptedException.class)
+      .collect(Collectors.toSet());
+  static final Predicate<Exception> DEFAULT_TERMINATE_PREDICATE = exception ->
+      FATAL_EXCEPTIONS.contains(exception.getClass());
   static final long NO_TIMEOUT = -1L;
+
   protected int maxAttempts = 3;
   protected long firstDelayNanos;
   protected long timeoutNanos = NO_TIMEOUT;
   protected Predicate<Exception> retryPredicate;
-  protected Predicate<Exception> terminatePredicate;
+  protected Predicate<Exception> terminatePredicate = DEFAULT_TERMINATE_PREDICATE;
   protected Backoff backOff = Backoffs.defaultBackoff();
 
   protected final Policy buildPolicy(boolean firstAttemptInInvocationThread) {
@@ -56,7 +64,8 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final long firstDelay(TimeUnit timeUnit) {
-    return timeUnit.convert(firstDelayNanos, TimeUnit.NANOSECONDS);
+    return Objects.requireNonNull(timeUnit, "'timeUnit' should not be 'null'.")
+        .convert(firstDelayNanos, TimeUnit.NANOSECONDS);
   }
 
   public final B firstDelayNanos(long firstDelayNanos) {
@@ -65,7 +74,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final B firstDelay(long amount, TimeUnit timeUnit) {
-    return firstDelayNanos(timeUnit.toNanos(amount));
+    return firstDelayNanos(Objects.requireNonNull(timeUnit, "'timeUnit' should not be 'null'.").toNanos(amount));
   }
 
   public final B noFirstDelay() {
@@ -77,7 +86,8 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final long timeout(TimeUnit timeUnit) {
-    return timeUnit.convert(timeoutNanos, TimeUnit.NANOSECONDS);
+    return Objects.requireNonNull(timeUnit, "'timeUnit' should not be 'null'.")
+        .convert(timeoutNanos, TimeUnit.NANOSECONDS);
   }
 
   public final B timeoutNanos(long timeoutNanos) {
@@ -86,7 +96,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final B timeout(long timeout, TimeUnit timeUnit) {
-    return timeoutNanos(timeUnit.toNanos(timeout));
+    return timeoutNanos(Objects.requireNonNull(timeUnit, "'timeUnit' should not be 'null'.").toNanos(timeout));
   }
 
   public final B noTimeout() {
@@ -99,6 +109,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final B retryPredicate(Predicate<Exception> retryPredicate) {
+    Objects.requireNonNull(retryPredicate, "'retryPredicate' should not be 'null'.");
     if (this.retryPredicate != null) {
       this.retryPredicate = this.retryPredicate.or(retryPredicate);
     } else {
@@ -125,11 +136,8 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final B terminatePredicate(Predicate<Exception> terminatePredicate) {
-    if (this.terminatePredicate != null) {
-      this.terminatePredicate = this.terminatePredicate.or(terminatePredicate);
-    } else {
-      this.terminatePredicate = terminatePredicate;
-    }
+    Objects.requireNonNull(terminatePredicate, "'terminatePredicate' should not be 'null'.");
+    this.terminatePredicate = terminatePredicate.or(this.terminatePredicate);
     return _this();
   }
 
@@ -159,6 +167,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
         .noFirstDelay();
   }
 
+  @SuppressWarnings("unchecked")
   private B _this() {
     return (B) this;
   }
