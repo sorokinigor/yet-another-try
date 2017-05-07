@@ -1,5 +1,6 @@
 package com.github.sorokinigor.yat.backoff;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,14 +26,14 @@ public final class Backoffs {
    * @see FixedDelayBackoff
    */
   public static Backoff fixedDelay(long amount, TimeUnit unit) {
-    return new FixedDelayBackoff(unit.toNanos(amount));
+    return new FixedDelayBackoff(Objects.requireNonNull(unit, "'unit' should not be 'null'.").toNanos(amount));
   }
 
   /**
    * @see FixedRateBackoff
    */
   public static Backoff fixedRate(long period, TimeUnit unit) {
-    return new FixedRateBackoff(unit.toNanos(period));
+    return new FixedRateBackoff(Objects.requireNonNull(unit, "'unit' should not be 'null'.").toNanos(period));
   }
 
   /**
@@ -47,6 +48,7 @@ public final class Backoffs {
    * @see ExponentialBackoff
    */
   public static Backoff exponential(long min, long max, TimeUnit unit, double randomFactor) {
+    Objects.requireNonNull(unit, "'unit' should not be 'null'.");
     return new ExponentialBackoff(unit.toNanos(min), unit.toNanos(max), randomFactor);
   }
 
