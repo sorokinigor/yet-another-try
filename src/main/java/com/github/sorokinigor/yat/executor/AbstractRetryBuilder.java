@@ -131,8 +131,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final Predicate<Exception> terminatePredicate() {
-    return terminatePredicate == null ? e -> false
-        : terminatePredicate;
+    return terminatePredicate;
   }
 
   public final B terminatePredicate(Predicate<Exception> terminatePredicate) {
