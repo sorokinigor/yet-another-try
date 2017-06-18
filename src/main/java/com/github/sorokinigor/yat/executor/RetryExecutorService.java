@@ -60,8 +60,8 @@ final class RetryExecutorService extends AbstractRetryExecutorService {
     @Override
     public void run() {
       if (context.future.isDone()) {
-        context.logger().debug("The task was completed externally before '{}/{}' attempt.", attempt + 1,
-            context.delayPolicy().maxAttempts);
+        context.logger().debug("The task '{}' was completed externally before '{}/{}' attempt.", attempt + 1,
+            context.task, context.delayPolicy().maxAttempts);
       } else {
         long start = System.nanoTime();
         try {
@@ -80,11 +80,12 @@ final class RetryExecutorService extends AbstractRetryExecutorService {
             RetryTask<T> task = new RetryTask<>(nextAttempt, e, context);
             long executionDurationNanos = finish - start;
             long delayNanos = policy.backOff.calculateDelayNanos(nextAttempt, executionDurationNanos);
-            context.logger().debug("Attempt '{}/{}' is failed. Next attempt will be in '{}' nanos.", attempt + 1,
-                maxAttempts, delayNanos);
+            context.logger().debug("Attempt '{}/{}' of task '{}' is failed. Next attempt will be in '{}' nanos.",
+                attempt + 1, maxAttempts, context.task, delayNanos);
             context.parentExecutor.executor.schedule(task, delayNanos, TimeUnit.NANOSECONDS);
           } else {
-            context.logger().debug("'{}/{}' attempts have been failed.", attempt + 1, maxAttempts);
+            context.logger().debug("'{}/{}' attempts of task '{}' have been failed.", attempt + 1, maxAttempts,
+                context.task);
             context.future.completeExceptionally(e);
           }
         }

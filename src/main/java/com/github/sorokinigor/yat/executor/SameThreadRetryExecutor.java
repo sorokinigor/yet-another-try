@@ -37,7 +37,7 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
 
   @Override
   public <T> T execute(Callable<? extends T> task) {
-    Objects.requireNonNull(task, "'supplier' should not be 'null'.");
+    Objects.requireNonNull(task, "'task' should not be 'null'.");
     Exception lastException = null;
     int attempt = 0;
     Thread currentThread = Thread.currentThread();
@@ -54,10 +54,9 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
         try {
           Thread.sleep(TimeUnit.NANOSECONDS.toMillis(delayNanos));
         } catch (InterruptedException e) {
-          logger.warn("Execution has been interrupted.");
+          logger.warn("Execution of task '{}' has been interrupted.", task, e);
           currentThread.interrupt();
           lastException = ExceptionUtils.addSuppressed(e, lastException);
-          break;
         }
       }
 
@@ -83,11 +82,11 @@ final class SameThreadRetryExecutor implements SyncRetryExecutor {
         attempt++;
         long executionDurationNanos = finish - start;
         delayNanos = policy.backOff.calculateDelayNanos(attempt, executionDurationNanos);
-        logger.debug("Attempt '{}/{}' is failed. Next attempt will be in '{}' nanos.",
-            attempt, policy.maxAttempts, delayNanos);
+        logger.debug("Attempt '{}/{}' of task '{}' is failed. Next attempt will be in '{}' nanos.",
+            attempt, policy.maxAttempts, task, delayNanos);
       }
     }
-    logger.debug("'{}/{}' attempts have been failed.", attempt, policy.maxAttempts);
+    logger.debug("'{}/{}' attempts of task '{}' have been failed.", attempt, policy.maxAttempts, task);
     throw new CompletionException(lastException);
   }
 
