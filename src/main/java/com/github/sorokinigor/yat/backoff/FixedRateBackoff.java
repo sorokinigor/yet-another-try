@@ -1,7 +1,5 @@
 package com.github.sorokinigor.yat.backoff;
 
-import static com.github.sorokinigor.yat.backoff.Backoffs.validateBackoffInput;
-
 /**
  * INTERNAL API
  *

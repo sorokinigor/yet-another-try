@@ -2,8 +2,6 @@ package com.github.sorokinigor.yat.backoff;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.github.sorokinigor.yat.backoff.Backoffs.validateBackoffInput;
-
 /**
  * INTERNAL API
  *
