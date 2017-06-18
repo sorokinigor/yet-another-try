@@ -33,7 +33,7 @@ final class ExponentialBackoff implements Backoff {
 
   @Override
   public long calculateDelayNanos(int attempt, long executionDurationNanos) {
-    validateBackoffInput(attempt, executionDurationNanos);
+    Backoffs.validateBackoffInput(attempt, executionDurationNanos);
     if (attempt > MAX_ATTEMPT) {
       return maxNanos;
     }
@@ -43,10 +43,6 @@ final class ExponentialBackoff implements Backoff {
 
   @Override
   public String toString() {
-    return "ExponentialBackoff{" +
-        "minNanos=" + minNanos +
-        ", maxNanos=" + maxNanos +
-        ", randomFactor=" + randomFactor +
-        '}';
+    return "ExponentialBackoff{minNanos=" + minNanos + ", maxNanos=" + maxNanos + ", randomFactor=" + randomFactor + '}';
   }
 }

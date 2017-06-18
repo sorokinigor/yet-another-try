@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The main entry point for built-in {@link Backoff} instantiation.
+ * The main entry point for built-in {@link Backoff}s' instantiation.
  *
  * @author Igor Sorokin
  */
@@ -41,9 +41,8 @@ public final class Backoffs {
    * @param min minimum (initial) delay
    * @param max the exponential back-off is capped to this duration
    * @param unit time unit of {@code min} and {@code max}
-   * @param randomFactor after calculation of the exponential back-off an additional
-   *   random delay based on this factor is added, e.g. `0.2` adds up to `20%` delay.
-   *   In order to skip this additional delay pass in `0`.
+   * @param randomFactor an additional random delay based on this factor is added, e.g. '0.2' adds up to '20%' delay.
+   *                     In order to skip this additional delay pass in '0'.
    *
    * @see ExponentialBackoff
    */
