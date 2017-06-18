@@ -37,8 +37,7 @@ public interface AsyncRetryExecutor extends ExecutorService, AutoCloseable {
    */
   @Override
   default <T> CompletableFuture<T> submit(Runnable task, T result) {
-    Objects.requireNonNull(task, "'task' should not be 'null'.");
-    return submit(() -> { task.run(); return result; });
+    return submit(Executors.callable(task, result));
   }
 
   /**

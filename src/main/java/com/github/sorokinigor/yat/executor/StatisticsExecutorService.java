@@ -38,15 +38,7 @@ public final class StatisticsExecutorService extends AbstractRetryExecutorServic
   @Override
   public <T> CompletableFuture<T> submit(Callable<T> task) {
     Objects.requireNonNull(task, "'task' should not be 'null'.");
-    return delegate
-        .submit(() -> {
-          try {
-            return task.call();
-          } catch (Exception e) {
-            failedAttempts.increment();
-            throw e;
-          }
-        })
+    return delegate.submit(new StatsWrapper<>(task))
         .whenComplete((ignored, exception) -> {
           if (exception == null) {
             successful.increment();
@@ -54,6 +46,30 @@ public final class StatisticsExecutorService extends AbstractRetryExecutorServic
             failed.increment();
           }
         });
+  }
+
+  private final class StatsWrapper<T> implements Callable<T> {
+
+    private final Callable<T> task;
+
+    private StatsWrapper(Callable<T> task) {
+      this.task = task;
+    }
+
+    @Override
+    public T call() throws Exception {
+      try {
+        return task.call();
+      } catch (Exception e) {
+        failedAttempts.increment();
+        throw e;
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "FailedAttemptsWrapper{task=" + task + '}';
+    }
   }
 
   /**
