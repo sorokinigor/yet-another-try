@@ -20,7 +20,7 @@ final class FixedDelayBackoff implements Backoff {
 
   @Override
   public long calculateDelayNanos(int attempt, long executionDurationNanos) {
-    validateBackoffInput(attempt, executionDurationNanos);
+    Backoffs.validateBackoffInput(attempt, executionDurationNanos);
     return durationNanos;
   }
 
