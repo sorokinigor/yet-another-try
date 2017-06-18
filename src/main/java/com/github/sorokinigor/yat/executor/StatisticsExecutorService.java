@@ -97,11 +97,7 @@ public final class StatisticsExecutorService extends AbstractRetryExecutorServic
 
     @Override
     public String toString() {
-      return "Stats{" +
-          "successful=" + successful +
-          ", failed=" + failed +
-          ", failedAttempts=" + failedAttempts +
-          '}';
+      return "Stats{successful=" + successful + ", failed=" + failed + ", failedAttempts=" + failedAttempts + '}';
     }
   }
 

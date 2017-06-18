@@ -3,10 +3,12 @@ package com.github.sorokinigor.yat.executor;
 import com.github.sorokinigor.yat.backoff.Backoff;
 import com.github.sorokinigor.yat.backoff.Backoffs;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,26 +20,26 @@ import java.util.stream.Stream;
 abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
 
   static final Set<Class<? extends Exception>> FATAL_EXCEPTIONS = Stream.of(InterruptedException.class)
-      .collect(Collectors.toSet());
+      .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
   static final Predicate<Exception> DEFAULT_TERMINATE_PREDICATE = exception ->
       FATAL_EXCEPTIONS.contains(exception.getClass());
   static final long NO_TIMEOUT = -1L;
 
-  protected int maxAttempts = 3;
-  protected long firstDelayNanos;
-  protected long timeoutNanos = NO_TIMEOUT;
-  protected Predicate<Exception> retryPredicate;
-  protected Predicate<Exception> terminatePredicate = DEFAULT_TERMINATE_PREDICATE;
-  protected Backoff backOff = Backoffs.defaultBackoff();
+  private int maxAttempts = 3;
+  private long firstDelayNanos;
+  private long timeoutNanos = NO_TIMEOUT;
+  private Predicate<Exception> retryPredicate;
+  private Predicate<Exception> terminatePredicate;
+  private Backoff backOff = Backoffs.defaultBackoff();
 
   protected final Policy buildPolicy(boolean firstAttemptInInvocationThread) {
     Predicate<Exception> retryPredicate = retryPredicate();
     Predicate<Exception> terminatePredicate = terminatePredicate();
     return new Policy(
         exception -> retryPredicate.test(exception) && !terminatePredicate.test(exception),
-        backOff,
-        firstDelayNanos,
-        maxAttempts,
+        backOff(),
+        firstDelayNanos(),
+        maxAttempts(),
         firstAttemptInInvocationThread
     );
   }
@@ -104,8 +106,7 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final Predicate<Exception> retryPredicate() {
-    return retryPredicate == null ? e -> true
-        : retryPredicate;
+    return retryPredicate == null ? exception -> true : retryPredicate;
   }
 
   public final B retryPredicate(Predicate<Exception> retryPredicate) {
@@ -131,12 +132,18 @@ abstract class AbstractRetryBuilder<B extends AbstractRetryBuilder<B>> {
   }
 
   public final Predicate<Exception> terminatePredicate() {
-    return terminatePredicate;
+    return terminatePredicate != null ? terminatePredicate.or(DEFAULT_TERMINATE_PREDICATE)
+        : DEFAULT_TERMINATE_PREDICATE;
   }
 
   public final B terminatePredicate(Predicate<Exception> terminatePredicate) {
     Objects.requireNonNull(terminatePredicate, "'terminatePredicate' should not be 'null'.");
-    this.terminatePredicate = terminatePredicate.or(this.terminatePredicate);
+    if (this.terminatePredicate != null)
+    {
+      this.terminatePredicate = this.terminatePredicate.or(terminatePredicate);
+    } else {
+      this.terminatePredicate = terminatePredicate;
+    }
     return _this();
   }
 

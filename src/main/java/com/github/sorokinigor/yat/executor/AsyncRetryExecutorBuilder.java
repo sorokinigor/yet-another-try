@@ -46,10 +46,10 @@ public final class AsyncRetryExecutorBuilder extends AbstractRetryBuilder<AsyncR
     if (!shouldShutdownExecutors) {
       executor = new NoShutdownWrapper(executor);
     }
-    if (timeoutNanos > 0L) {
+    if (timeoutNanos() > 0L) {
       timeoutExecutorService = timeoutExecutorService == null ? executorService
           : timeoutExecutorService;
-      return new TimeoutExecutorService(executor, timeoutExecutorService, timeoutNanos);
+      return new TimeoutExecutorService(executor, timeoutExecutorService, timeoutNanos());
     } else {
       return executor;
     }
