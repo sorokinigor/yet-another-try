@@ -41,7 +41,7 @@ abstract class AbstractRetryExecutorService implements AsyncRetryExecutor {
     }
     boolean completeWithTimeout = timeoutNanos.isPresent();
     try {
-      if (timeoutNanos.isPresent()) {
+      if (completeWithTimeout) {
         CompletableFuture.allOf(futures)
             .get(timeoutNanos.getAsLong(), TimeUnit.NANOSECONDS);
         completeWithTimeout = false;

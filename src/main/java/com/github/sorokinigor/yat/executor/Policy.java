@@ -48,13 +48,8 @@ final class Policy {
 
   @Override
   public String toString() {
-    return "Policy{" +
-        "exceptionFilter=" + exceptionFilter +
-        ", backOff=" + backOff +
-        ", firstDelayNanos=" + firstDelayNanos +
-        ", maxAttempts=" + maxAttempts +
-        ", firstAttemptInInvocationThread=" + firstAttemptInInvocationThread +
-        '}';
+    return "Policy{exceptionFilter=" + exceptionFilter + ", backOff=" + backOff + ", firstDelayNanos=" + firstDelayNanos
+        + ", maxAttempts=" + maxAttempts + ", firstAttemptInInvocationThread=" + firstAttemptInInvocationThread + '}';
   }
 
 }

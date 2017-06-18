@@ -20,7 +20,7 @@ public final class SyncRetryExecutorBuilder extends AbstractRetryBuilder<SyncRet
 
   public SyncRetryExecutor build() {
     Policy policy = buildPolicy(true);
-    return new SameThreadRetryExecutor(policy, timeoutNanos);
+    return new SameThreadRetryExecutor(policy, timeoutNanos());
   }
 
   @Override
